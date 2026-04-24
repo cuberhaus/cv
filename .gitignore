@@ -1,0 +1,14 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+
+# Generated PDFs (uncomment if you don't want to track them)
+# cv_english.pdf
+# cv_spanish.pdf
