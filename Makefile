@@ -1,30 +1,25 @@
-ENGINE ?= xelatex
-FLAGS  ?= -interaction=nonstopmode -halt-on-error
+SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
 
-TARGETS = cv_english.pdf cv_spanish.pdf cv_catalan.pdf
+.PHONY: all english spanish catalan check clean distclean
 
-.PHONY: all english spanish catalan clean distclean
+all:
+	$(SCRIPT)
 
-all: $(TARGETS)
+english:
+	$(SCRIPT) english
 
-english: cv_english.pdf
-spanish: cv_spanish.pdf
-catalan: cv_catalan.pdf
+spanish:
+	$(SCRIPT) spanish
 
-cv_english.pdf: cv_english.tex awesome-cv.cls $(wildcard cv/*.tex) profile.jpeg
-	$(ENGINE) $(FLAGS) $<
-	$(ENGINE) $(FLAGS) $<
+catalan:
+	$(SCRIPT) catalan
 
-cv_spanish.pdf: cv_spanish.tex awesome-cv.cls $(wildcard cv/*.tex) profile.jpeg
-	$(ENGINE) $(FLAGS) $<
-	$(ENGINE) $(FLAGS) $<
-
-cv_catalan.pdf: cv_catalan.tex awesome-cv.cls $(wildcard cv/*.tex) profile.jpeg
-	$(ENGINE) $(FLAGS) $<
-	$(ENGINE) $(FLAGS) $<
+check:
+	$(SCRIPT) -Check
 
 clean:
-	del /Q *.aux *.log *.out *.fls *.fdb_latexmk *.synctex.gz 2>nul || true
+	pwsh -NoProfile -Command "Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue"
 
 distclean: clean
-	del /Q $(TARGETS) 2>nul || true
+	pwsh -NoProfile -Command "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue"
+
