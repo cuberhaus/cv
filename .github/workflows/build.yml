@@ -91,10 +91,22 @@ jobs:
           prerelease: false
           make_latest: "false"
 
+      - name: Delete previous "latest" tag/release so it retags this commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # softprops/action-gh-release updates assets on an existing release
+          # but does NOT move the underlying git tag. Without this step, the
+          # `latest` release page would forever show the commit where the tag
+          # was first created. Deleting the release + tag first forces it to
+          # be re-created against the current ${{ github.sha }}.
+          gh release delete latest --yes --cleanup-tag || true
+
       - name: Publish PDFs to rolling "latest" release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
+          target_commitish: ${{ github.sha }}
           name: Latest CV
           body: |
             Auto-generated from the latest commit on `main`.
