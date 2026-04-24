@@ -8,7 +8,9 @@
 *.toc
 *.bbl
 *.blg
+*.xdv
 
-# Generated PDFs (uncomment if you don't want to track them)
-# cv_english.pdf
-# cv_spanish.pdf
+# Locally-built PDFs (published to GitHub Releases, not tracked in git)
+cv_english.pdf
+cv_spanish.pdf
+cv_catalan.pdf
