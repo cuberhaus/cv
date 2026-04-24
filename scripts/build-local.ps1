@@ -1,5 +1,6 @@
 # Build CV PDFs locally using the same TeX Live Docker image CI uses.
-# All output (PDFs, logs, aux files) is written to ./build/.
+# Aux files (.log, .aux, .xdv, ...) go to ./build/
+# Final PDFs are copied to ./dist/ for easy access.
 #
 # Usage:
 #   pwsh scripts/build-local.ps1             # build all 3
@@ -19,6 +20,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $image = 'texlive/texlive:latest'
 $buildDir = Join-Path $repoRoot 'build'
+$distDir  = Join-Path $repoRoot 'dist'
 
 $targets = switch ($Target) {
     'english' { @('cv_english') }
@@ -27,12 +29,13 @@ $targets = switch ($Target) {
     default   { @('cv_english', 'cv_spanish', 'cv_catalan') }
 }
 
-if (-not (Test-Path $buildDir)) {
-    New-Item -ItemType Directory -Path $buildDir | Out-Null
+foreach ($d in @($buildDir, $distDir)) {
+    if (-not (Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null }
 }
 
 Write-Host "Using image: $image" -ForegroundColor Cyan
-Write-Host "Output dir:  $buildDir" -ForegroundColor Cyan
+Write-Host "Aux dir:     $buildDir" -ForegroundColor Cyan
+Write-Host "PDF dir:     $distDir" -ForegroundColor Cyan
 
 foreach ($t in $targets) {
     Write-Host "`n=== Building $t.pdf ===" -ForegroundColor Yellow
@@ -45,9 +48,14 @@ foreach ($t in $targets) {
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for $t"
     }
+
+    $srcPdf = Join-Path $buildDir "$t.pdf"
+    $dstPdf = Join-Path $distDir  "$t.pdf"
+    Copy-Item -Path $srcPdf -Destination $dstPdf -Force
+    Write-Host "  -> $dstPdf" -ForegroundColor DarkGray
 }
 
-# Page-count check (parses the xelatex log file written during the build)
+# Page-count check (parses the xelatex log written during the build)
 if ($Check) {
     $overflow = @()
     foreach ($t in $targets) {
