@@ -2,6 +2,8 @@ name: Build CV
 
 on:
   push:
+    branches: [main, develop]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -9,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-cv
+  group: build-cv-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,6 +48,52 @@ jobs:
             cv_spanish.pdf
             cv_catalan.pdf
 
+  publish:
+    # Releases + portfolio dispatch only on merges to main (PR from develop).
+    # Pushes to develop and PR events only run `build` above for validation.
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download built PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: cv-pdfs
+
+      - name: Compute release tag
+        id: tag
+        run: |
+          # Date-based tag: v2026.04.24-<shortsha>. Unique per commit so
+          # each build gets its own permanent, archived release.
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          DATE=$(date -u +'%Y.%m.%d')
+          TAG="v${DATE}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "date=${DATE}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Release tag: ${TAG}"
+
+      - name: Publish PDFs to dated release (archive)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})
+          body: |
+            CV built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
+
+            - `cv_english.pdf`
+            - `cv_spanish.pdf`
+            - `cv_catalan.pdf`
+          files: |
+            cv_english.pdf
+            cv_spanish.pdf
+            cv_catalan.pdf
+          prerelease: false
+          make_latest: "false"
+
       - name: Publish PDFs to rolling "latest" release
         uses: softprops/action-gh-release@v2
         with:
@@ -53,7 +101,10 @@ jobs:
           name: Latest CV
           body: |
             Auto-generated from the latest commit on `main`.
-            Rebuilt on every push.
+            Rebuilt on every push. For permanent archived versions see the
+            dated releases (`v<YYYY.MM.DD>-<sha>`).
+
+            Built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
           files: |
             cv_english.pdf
             cv_spanish.pdf
