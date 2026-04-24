@@ -1,0 +1,80 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+% Awesome CV LaTeX Template for CV/Resume
+%
+% This template has been downloaded from:
+% https://github.com/posquit0/Awesome-CV
+%
+% Author:
+% Claud D. Park <posquit0.bj@gmail.com>
+% http://www.posquit0.com
+%
+% Template license:
+% CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+%
+
+
+%-------------------------------------------------------------------------------
+% CONFIGURATIONS
+%-------------------------------------------------------------------------------
+% A4 paper size by default, use 'letterpaper' for US letter
+\documentclass[11pt, a4paper]{awesome-cv}
+
+% Configure page margins with geometry
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+
+% Specify the location of the included fonts
+\fontdir[fonts/]
+
+% Color for highlights
+\colorlet{awesome}{awesome-red}
+
+% Set false if you don't want to highlight section with awesome color
+\setbool{acvSectionColorHighlight}{true}
+
+% If you would like to change the social information separator from a pipe (|) to something else
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+
+%-------------------------------------------------------------------------------
+%	PERSONAL INFORMATION
+%-------------------------------------------------------------------------------
+\photo[rectangle,edge,right]{./profile.jpeg}
+\name{Pol}{Casacuberta}
+\position{Consultor d'IA i Dades}
+
+\mobile{(+34) 671-823-024}
+\email{polcg10@gmail.com}
+\homepage{github.com/cuberhaus}
+\github{cuberhaus}
+\linkedin{pol casacuberta}
+
+\quote{``A l'esquena de gegants."}
+
+
+%-------------------------------------------------------------------------------
+\begin{document}
+
+% Print the header with above personal informations
+\makecvheader
+
+% Print the footer with 3 arguments(<left>, <center>, <right>)
+\makecvfooter
+  {\today}
+  {Pol C. Gil~~~·~~~Curriculum Vitae}
+  {\thepage}
+
+
+%-------------------------------------------------------------------------------
+%	CV/RESUME CONTENT
+%-------------------------------------------------------------------------------
+\input{cv/summary_ca}
+\input{cv/education_ca.tex}
+\input{cv/skills_ca.tex}
+\input{cv/experience_ca.tex}
+\newpage
+\input{cv/extracurricular_ca.tex}
+
+
+%-------------------------------------------------------------------------------
+\end{document}
