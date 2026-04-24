@@ -10,7 +10,5 @@
 *.blg
 *.xdv
 
-# Locally-built PDFs (published to GitHub Releases, not tracked in git)
-cv_english.pdf
-cv_spanish.pdf
-cv_catalan.pdf
+# Local build output (PDFs are published via GitHub Releases, not tracked)
+build/

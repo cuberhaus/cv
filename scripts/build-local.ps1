@@ -1,4 +1,5 @@
 # Build CV PDFs locally using the same TeX Live Docker image CI uses.
+# All output (PDFs, logs, aux files) is written to ./build/.
 #
 # Usage:
 #   pwsh scripts/build-local.ps1             # build all 3
@@ -17,6 +18,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $image = 'texlive/texlive:latest'
+$buildDir = Join-Path $repoRoot 'build'
 
 $targets = switch ($Target) {
     'english' { @('cv_english') }
@@ -25,7 +27,12 @@ $targets = switch ($Target) {
     default   { @('cv_english', 'cv_spanish', 'cv_catalan') }
 }
 
+if (-not (Test-Path $buildDir)) {
+    New-Item -ItemType Directory -Path $buildDir | Out-Null
+}
+
 Write-Host "Using image: $image" -ForegroundColor Cyan
+Write-Host "Output dir:  $buildDir" -ForegroundColor Cyan
 
 foreach ($t in $targets) {
     Write-Host "`n=== Building $t.pdf ===" -ForegroundColor Yellow
@@ -33,26 +40,32 @@ foreach ($t in $targets) {
         -v "${repoRoot}:/workdir" `
         -w /workdir `
         $image `
-        latexmk -xelatex -interaction=nonstopmode -halt-on-error "$t.tex"
+        latexmk -xelatex -interaction=nonstopmode -halt-on-error `
+                -output-directory=build "$t.tex"
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for $t"
     }
 }
 
-# Page-count check (uses pdfinfo if available, else Python)
+# Page-count check (parses the xelatex log file written during the build)
 if ($Check) {
     $overflow = @()
     foreach ($t in $targets) {
-        $pdf = Join-Path $repoRoot "$t.pdf"
-        if (-not (Test-Path $pdf)) { continue }
-
-        $pages = docker run --rm -v "${repoRoot}:/workdir" -w /workdir $image `
-            pdfinfo "$t.pdf" 2>$null | Select-String -Pattern '^Pages:' | ForEach-Object {
-                ($_ -replace '\D', '')
-            }
-        $pages = [int]$pages
-        $mark = if ($pages -gt 1) { "✗" } else { "✓" }
-        Write-Host ("  {0} {1}: {2} page(s)" -f $mark, $t, $pages)
+        $log = Join-Path $buildDir "$t.log"
+        if (-not (Test-Path $log)) {
+            Write-Host ("  ? {0}: no log file" -f $t) -ForegroundColor DarkYellow
+            continue
+        }
+        $match = Select-String -Path $log -Pattern 'Output written on .*\((\d+) pages?' |
+            Select-Object -Last 1
+        if (-not $match) {
+            Write-Host ("  ? {0}: page count not found in log" -f $t) -ForegroundColor DarkYellow
+            continue
+        }
+        $pages = [int]$match.Matches[0].Groups[1].Value
+        $mark = if ($pages -gt 1) { 'X' } else { 'OK' }
+        $color = if ($pages -gt 1) { 'Red' } else { 'Green' }
+        Write-Host ("  [{0}] {1}: {2} page(s)" -f $mark, $t, $pages) -ForegroundColor $color
         if ($pages -gt 1) { $overflow += $t }
     }
     if ($overflow.Count -gt 0) {
