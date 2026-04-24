@@ -7,46 +7,40 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Default: read-only. The publish job escalates to contents: write.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: build-cv-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancel superseded builds on develop/PRs, but let main publishes
+  # finish so we never leave a half-released state on the repo.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      # Don't cancel the other languages if one fails — we want to see
+      # all broken languages in a single run, not one at a time.
+      fail-fast: false
+      matrix:
+        cv: [english, spanish, catalan]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compile English CV
+      - name: Compile ${{ matrix.cv }} CV
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: cv_english.tex
+          root_file: cv_${{ matrix.cv }}.tex
           latexmk_use_xelatex: true
 
-      - name: Compile Spanish CV
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: cv_spanish.tex
-          latexmk_use_xelatex: true
-
-      - name: Compile Catalan CV
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: cv_catalan.tex
-          latexmk_use_xelatex: true
-
-      - name: Upload PDFs as workflow artifact
+      - name: Upload ${{ matrix.cv }} PDF
         uses: actions/upload-artifact@v4
         with:
-          name: cv-pdfs
-          path: |
-            cv_english.pdf
-            cv_spanish.pdf
-            cv_catalan.pdf
+          name: cv-${{ matrix.cv }}
+          path: cv_${{ matrix.cv }}.pdf
 
   publish:
     # Releases + portfolio dispatch only on merges to main (PR from develop).
@@ -54,14 +48,17 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download built PDFs
+      - name: Download all CV PDFs
         uses: actions/download-artifact@v4
         with:
-          name: cv-pdfs
+          pattern: cv-*
+          merge-multiple: true
 
       - name: Compute release tag
         id: tag
