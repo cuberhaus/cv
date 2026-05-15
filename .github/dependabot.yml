@@ -1,0 +1,22 @@
+# Weekly Dependabot scans against main. Each PR runs the existing CI
+# (LaTeX build × 3 languages), so a bump that breaks the build never
+# lands. Major-version bumps are ignored — those need a focused PR
+# with manual review.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+    commit-message:
+      prefix: chore(ci)
+      include: scope
+    labels:
+      - dependencies
