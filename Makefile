@@ -2,7 +2,7 @@ SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all english spanish catalan check clean distclean
+.PHONY: help all english spanish catalan check clean distclean hooks
 
 help:
 	@echo "CV build targets:"
@@ -13,6 +13,7 @@ help:
 	@echo "  make check      Build all + fail if any CV overflows to 2+ pages"
 	@echo "  make clean      Remove build/ (aux, logs, .xdv)"
 	@echo "  make distclean  Remove build/ and dist/ (also final PDFs)"
+	@echo "  make hooks      Enable tracked git hooks (pre-push guard against direct pushes to main/master)"
 	@echo "  make help       Show this message"
 
 all:
@@ -35,4 +36,8 @@ clean:
 
 distclean: clean
 	pwsh -NoProfile -Command "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue"
+
+hooks:
+	git config core.hooksPath .githooks
+	@echo "Git hooks enabled from .githooks/ (pre-push guards main/master)."
 
