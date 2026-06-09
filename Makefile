@@ -39,5 +39,5 @@ distclean: clean
 
 hooks:
 	git config core.hooksPath .githooks
-	@echo "Git hooks enabled from .githooks/ (pre-push guards main/master)."
+	@echo "Git hooks enabled from .githooks/ (pre-commit + pre-push guard main/master)."
 
