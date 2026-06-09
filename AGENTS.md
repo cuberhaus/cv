@@ -27,4 +27,14 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 - The `publish` job deletes and recreates the `latest` tag every push to `main`; preserve that step or the release page will pin to an old commit.
 - Build is XeLaTeX-only (custom fonts in `fonts/`); plain `pdflatex` will not work.
 
+## Git hooks
+
+`main` is protected on GitHub and the project flow is feature branch → PR into `develop` → PR into `main`. Tracked `pre-commit` and `pre-push` hooks in `.githooks/` block accidental direct commits and pushes to `main`/`master`. Activate them once per clone:
+
+```powershell
+make hooks   # or: git config core.hooksPath .githooks
+```
+
+Override in an emergency with `git commit --no-verify` or `git push --no-verify`.
+
 See [README.md](README.md) for full setup.
