@@ -36,10 +36,10 @@ jobs:
            '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Compile ${{ matrix.cv }} CV (toggles ${{ matrix.toggles }})
-        uses: xu-cheng/latex-action@v3
+        uses: xu-cheng/latex-action@v4
         with:
           root_file: cv_${{ matrix.cv }}.tex
           latexmk_use_xelatex: true
@@ -62,7 +62,7 @@ jobs:
             fi
 
       - name: Upload ${{ matrix.cv }}-${{ matrix.toggles }} PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cv-${{ matrix.cv }}-${{ matrix.toggles }}
           path: cv_${{ matrix.cv }}*.pdf
@@ -77,10 +77,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download all CV PDFs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: cv-*
           merge-multiple: true
@@ -99,7 +99,7 @@ jobs:
           echo "Release tag: ${TAG}"
 
       - name: Publish PDFs to dated release (archive)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})
@@ -132,7 +132,7 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
 
       - name: Publish PDFs to rolling "latest" release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: latest
           target_commitish: ${{ github.sha }}
