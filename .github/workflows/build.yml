@@ -74,7 +74,7 @@ jobs:
           echo "Release tag: ${TAG}"
 
       - name: Publish PDFs to dated release (archive)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})
@@ -103,7 +103,7 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
 
       - name: Publish PDFs to rolling "latest" release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: latest
           target_commitish: ${{ github.sha }}
