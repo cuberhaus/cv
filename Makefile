@@ -2,7 +2,7 @@ SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all english spanish catalan check clean distclean hooks
+.PHONY: help all english spanish catalan check clean distclean hooks lint
 
 help:
 	@echo "CV build targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  make spanish    Build cv_spanish.pdf -> dist/"
 	@echo "  make catalan    Build cv_catalan.pdf -> dist/"
 	@echo "  make check      Build all + fail if any CV overflows to 2+ pages"
+	@echo "  make lint       Run chktex on the three .tex sources (requires TeX Live)"
 	@echo "  make clean      Remove build/ (aux, logs, .xdv)"
 	@echo "  make distclean  Remove build/ and dist/ (also final PDFs)"
 	@echo "  make hooks      Enable tracked git hooks (pre-push guard against direct pushes to main/master)"
@@ -30,6 +31,9 @@ catalan:
 
 check:
 	$(SCRIPT) -Check
+
+lint:
+	chktex cv_english.tex cv_spanish.tex cv_catalan.tex
 
 clean:
 	pwsh -NoProfile -Command "Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue"
