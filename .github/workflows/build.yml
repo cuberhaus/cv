@@ -21,26 +21,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      # Don't cancel the other languages if one fails — we want to see
-      # all broken languages in a single run, not one at a time.
+      # Don't cancel the other variants if one fails - we want to see
+      # all broken variants in a single run, not one at a time.
       fail-fast: false
       matrix:
         cv: [english, spanish, catalan]
+        # 16 toggle combinations per language = 48 total jobs.
+        # Bit positions (left-to-right): c, e, p, s.
+        #   c = certifications, e = extracurricular, p = projects, s = skills.
+        # '0111' is the canonical CV (current behaviour, no certifications)
+        # and is also published as the back-compat cv_<lang>.pdf alias.
+        toggles:
+          ['0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
+           '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compile ${{ matrix.cv }} CV
+      - name: Compile ${{ matrix.cv }} CV (toggles ${{ matrix.toggles }})
         uses: xu-cheng/latex-action@v3
         with:
           root_file: cv_${{ matrix.cv }}.tex
           latexmk_use_xelatex: true
+          # Write build/flags.tex (input'd by the top-level .tex via
+          # \IfFileExists). Each \def overrides the providecommand default
+          # in the .tex file. Bit positions: c, e, p, s.
+          pre_compile: |
+            mkdir -p build
+            T="${{ matrix.toggles }}"
+            printf '\\def\\inccertifications{%s}\\def\\incextracurricular{%s}\\def\\incprojects{%s}\\def\\incskills{%s}\n' \
+              "${T:0:1}" "${T:1:1}" "${T:2:1}" "${T:3:1}" > build/flags.tex
+            cat build/flags.tex
+          # Rename to the variant filename. For the canonical 0111 variant,
+          # also produce the cv_<lang>.pdf back-compat alias so existing
+          # consumers (PersonalPortfolio's deploy.yml) keep working.
+          post_compile: |
+            mv "cv_${{ matrix.cv }}.pdf" "cv_${{ matrix.cv }}_${{ matrix.toggles }}.pdf"
+            if [ "${{ matrix.toggles }}" = "0111" ]; then
+              cp "cv_${{ matrix.cv }}_${{ matrix.toggles }}.pdf" "cv_${{ matrix.cv }}.pdf"
+            fi
 
-      - name: Upload ${{ matrix.cv }} PDF
+      - name: Upload ${{ matrix.cv }}-${{ matrix.toggles }} PDF
         uses: actions/upload-artifact@v4
         with:
-          name: cv-${{ matrix.cv }}
-          path: cv_${{ matrix.cv }}.pdf
+          name: cv-${{ matrix.cv }}-${{ matrix.toggles }}
+          path: cv_${{ matrix.cv }}*.pdf
 
   publish:
     # Releases + portfolio dispatch only on merges to main (PR from develop).
@@ -81,13 +106,17 @@ jobs:
           body: |
             CV built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
 
-            - `cv_english.pdf`
-            - `cv_spanish.pdf`
-            - `cv_catalan.pdf`
-          files: |
-            cv_english.pdf
-            cv_spanish.pdf
-            cv_catalan.pdf
+            **51 PDFs**: 16 section combinations x 3 languages = 48 variants,
+            plus 3 back-compat aliases (`cv_english.pdf`, `cv_spanish.pdf`,
+            `cv_catalan.pdf`) pointing at the canonical 0111 build
+            (skills + projects + extracurricular, no certifications).
+
+            **Variant filename**: `cv_<lang>_<toggles>.pdf` where `<toggles>`
+            is a 4-bit string. Position order (left-to-right): `c, e, p, s`
+            (certifications, extracurricular, projects, skills).
+            Example: `cv_english_1011.pdf` = certifications + projects + skills,
+            no extracurricular.
+          files: cv_*.pdf
           prerelease: false
           make_latest: "false"
 
@@ -114,10 +143,11 @@ jobs:
             dated releases (`v<YYYY.MM.DD>-<sha>`).
 
             Built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
-          files: |
-            cv_english.pdf
-            cv_spanish.pdf
-            cv_catalan.pdf
+
+            **51 PDFs**: 16 section combinations x 3 languages = 48 variants,
+            plus 3 back-compat aliases (`cv_english.pdf`, `cv_spanish.pdf`,
+            `cv_catalan.pdf`) pointing at the canonical 0111 build.
+          files: cv_*.pdf
           prerelease: false
           make_latest: "true"
 

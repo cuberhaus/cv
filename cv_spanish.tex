@@ -97,12 +97,28 @@
 %	CV/RESUME CONTENT
 %	Each section is imported separately, open each file in turn to modify content
 %-------------------------------------------------------------------------------
+%	SECTION TOGGLES
+%	Defaults reflect the canonical CV (current behaviour, no certifications).
+%	To build a custom variant, write build/flags.tex with \def overrides
+%	before running latexmk.
+%	Values: 1 = include, 0 = exclude. summary/education/experience are
+%	always included (not toggleable).
+%-------------------------------------------------------------------------------
+\IfFileExists{build/flags.tex}{\input{build/flags}}{}
+\providecommand{\incskills}{1}
+\providecommand{\incprojects}{1}
+\providecommand{\incextracurricular}{1}
+\providecommand{\inccertifications}{0}
+
+
+%-------------------------------------------------------------------------------
 \input{cv/summary_es}
 \input{cv/education_es.tex}
-\input{cv/skills_es.tex}
+\ifnum\incskills=1 \input{cv/skills_es.tex}\fi
 \input{cv/experience_es.tex}
-\input{cv/projects_es.tex}
-\input{cv/extracurricular_es.tex}
+\ifnum\incprojects=1 \input{cv/projects_es.tex}\fi
+\ifnum\incextracurricular=1 \input{cv/extracurricular_es.tex}\fi
+\ifnum\inccertifications=1 \input{cv/certifications_es.tex}\fi
 %\input{cv/honors.tex}
 %\input{cv/presentation.tex}
 %\input{cv/writing.tex}
