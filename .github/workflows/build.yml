@@ -62,7 +62,7 @@ jobs:
             fi
 
       - name: Upload ${{ matrix.cv }}-${{ matrix.toggles }} PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cv-${{ matrix.cv }}-${{ matrix.toggles }}
           path: cv_${{ matrix.cv }}*.pdf
