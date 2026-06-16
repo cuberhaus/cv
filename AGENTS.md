@@ -31,6 +31,6 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 - Build is XeLaTeX-only (custom fonts in `fonts/`); plain `pdflatex` will not work.
 - The 48-variant CI matrix takes ~3-5 min wall-clock with default GitHub concurrency. Each job has a TeX Live cold-start of ~10-15s; do not add per-job heavy setup steps without considering the multiplier.
 - `cv_<lang>.pdf` (no toggle suffix) is a back-compat alias for `cv_<lang>_0111.pdf`. PersonalPortfolio's `deploy.yml` fetches the alias, so don't rename or drop it without updating the downstream consumer.
-- The `cv/certifications*.tex` section files ship empty (templates only) - rendering `inccertifications=1` against the empty content shows just a header. Fill them in before promoting any `c=1` variant.
+- The `cv/certifications*.tex` section files are sourced from `PersonalPortfolio/src/data/certifications.json` (single source of truth) and sorted newest-first. When adding or updating a certification, edit the JSON in PersonalPortfolio first, then mirror the change here (issuer names stay English; only dates are localised).
 
 See [README.md](README.md) for full setup.
