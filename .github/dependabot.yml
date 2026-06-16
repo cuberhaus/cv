@@ -1,0 +1,19 @@
+# Weekly dependency-bump PRs against main for GitHub Actions versions used by
+# .github/workflows/build.yml. cv's CI surface is small (LaTeX build only),
+# so a single weekly PR with all action updates is enough — no npm/pip
+# ecosystems exist in this repo.
+
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(ci)
+      include: scope
+    labels:
+      - dependencies
+      - ci
