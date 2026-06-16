@@ -1,7 +1,8 @@
 # Weekly dependency-bump PRs against main for GitHub Actions versions used by
 # .github/workflows/build.yml. cv's CI surface is small (LaTeX build only),
-# so a single weekly PR with all action updates is enough — no npm/pip
-# ecosystems exist in this repo.
+# so a single weekly PR with all action updates is enough -- no npm/pip
+# ecosystems exist in this repo. The `groups` block coalesces every action
+# bump into one PR per week instead of one PR per action.
 
 version: 2
 
@@ -11,6 +12,10 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    groups:
+      github-actions:
+        patterns:
+          - '*'
     commit-message:
       prefix: chore(ci)
       include: scope
