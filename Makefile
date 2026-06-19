@@ -51,3 +51,9 @@ hooks:
 	git config core.hooksPath .githooks
 	@echo "Git hooks enabled from .githooks/ (pre-push guards main/master)."
 
+
+##@ Understand (knowledge graph)
+
+.PHONY: understand-dashboard
+understand-dashboard: ## Launch the Understand Anything knowledge-graph dashboard (graph dir = repo root)
+	@node -e "require(require('os').homedir()+'/.understand-anything/repo/understand-anything-plugin/packages/dashboard/launch.cjs')"
