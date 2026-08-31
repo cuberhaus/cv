@@ -2,26 +2,27 @@ SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all english spanish catalan check clean distclean hooks lint
+.PHONY: help all curated english spanish catalan ats check validate-career clean distclean hooks lint
 
 help:
 	@echo "CV build targets:"
-	@echo "  make all        Build all 3 canonical CVs (no certifications) -> dist/"
-	@echo "  make english    Build canonical cv_english.pdf -> dist/"
-	@echo "  make spanish    Build canonical cv_spanish.pdf -> dist/"
-	@echo "  make catalan    Build canonical cv_catalan.pdf -> dist/"
-	@echo "  make check      Build all + fail if canonical variant overflows to 2+ pages"
+	@echo "  make all        Build standard photo CVs in all languages -> dist/"
+	@echo "  make curated    Build all public preset/photo combinations -> dist/"
+	@echo "  make english    Build standard photo English CV -> dist/"
+	@echo "  make spanish    Build standard photo Spanish CV -> dist/"
+	@echo "  make catalan    Build standard photo Catalan CV -> dist/"
+	@echo "  make ats        Build the three local-only ATS CVs -> dist/"
+	@echo "  make check      Compile the standard photo CVs in all languages"
+	@echo "  make validate-career  Validate the AI tailoring inventory"
 	@echo "  make lint       Run chktex on the three .tex sources (requires TeX Live)"
 	@echo "  make clean      Remove build/ (aux, logs, .xdv)"
 	@echo "  make distclean  Remove build/ and dist/ (also final PDFs)"
 	@echo "  make hooks      Enable tracked git hooks (pre-push guard against direct pushes to main/master)"
 	@echo "  make help       Show this message"
 	@echo ""
-	@echo "Custom variants (toggles c=certifications, e=extracurricular, p=projects, s=skills):"
-	@echo "  pwsh scripts/build-local.ps1 english -Toggles 1111  # all on"
-	@echo "  pwsh scripts/build-local.ps1 english -Toggles 0000  # minimum (summary+education+experience)"
-	@echo "  pwsh scripts/build-local.ps1 -Toggles 1011          # certifications + projects + skills, no extracurricular"
-	@echo "  CI builds all 16 toggle combos x 3 langs = 48 variants on every push to main."
+	@echo "Public presets: standard, technical, complete, concise. Photo modes: photo, no-photo."
+	@echo "  pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo"
+	@echo "  pwsh scripts/build-local.ps1 catalan -Style ats -PhotoMode no-photo"
 
 all:
 	$(SCRIPT)
@@ -35,8 +36,17 @@ spanish:
 catalan:
 	$(SCRIPT) catalan
 
+curated:
+	$(SCRIPT) -AllCurated
+
+ats:
+	$(SCRIPT) -Style ats -PhotoMode no-photo
+
 check:
 	$(SCRIPT) -Check
+
+validate-career:
+	python scripts/validate-career.py
 
 lint:
 	chktex cv_english.tex cv_spanish.tex cv_catalan.tex

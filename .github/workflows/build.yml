@@ -26,46 +26,65 @@ jobs:
       fail-fast: false
       matrix:
         cv: [english, spanish, catalan]
-        # 16 toggle combinations per language = 48 total jobs.
-        # Bit positions (left-to-right): c, e, p, s.
-        #   c = certifications, e = extracurricular, p = projects, s = skills.
-        # '0111' is the canonical CV (current behaviour, no certifications)
-        # and is also published as the back-compat cv_<lang>.pdf alias.
-        toggles:
-          ['0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
-           '1000', '1001', '1010', '1011', '1100', '1101', '1110', '1111']
+        # Four curated presets x two photo modes x three languages = 24
+        # public assets. Bits retain the existing c/e/p/s section contract.
+        preset: [standard, technical, complete, concise]
+        photo_mode: [photo, no-photo]
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
 
-      - name: Compile ${{ matrix.cv }} CV (toggles ${{ matrix.toggles }})
+      - name: Compile ${{ matrix.cv }} ${{ matrix.preset }} ${{ matrix.photo_mode }} CV
         uses: xu-cheng/latex-action@v4
         with:
           root_file: cv_${{ matrix.cv }}.tex
           latexmk_use_xelatex: true
-          # Write build/flags.tex (input'd by the top-level .tex via
-          # \IfFileExists). Each \def overrides the providecommand default
-          # in the .tex file. Bit positions: c, e, p, s.
+          # Each preset maps to existing c/e/p/s section flags. Photo mode
+          # controls the conditional \photo declaration in every entry point.
           pre_compile: |
             mkdir -p build
-            T="${{ matrix.toggles }}"
-            printf '\\def\\inccertifications{%s}\\def\\incextracurricular{%s}\\def\\incprojects{%s}\\def\\incskills{%s}\n' \
-              "${T:0:1}" "${T:1:1}" "${T:2:1}" "${T:3:1}" > build/flags.tex
+            case "${{ matrix.preset }}" in
+              standard) T=0111 ;;
+              technical) T=0011 ;;
+              complete) T=1111 ;;
+              concise) T=0001 ;;
+            esac
+            PHOTO=0
+            if [ "${{ matrix.photo_mode }}" = "photo" ]; then PHOTO=1; fi
+            printf '\\def\\inccertifications{%s}\\def\\incextracurricular{%s}\\def\\incprojects{%s}\\def\\incskills{%s}\\def\\incphoto{%s}\n' \
+              "${T:0:1}" "${T:1:1}" "${T:2:1}" "${T:3:1}" "$PHOTO" > build/flags.tex
             cat build/flags.tex
-          # Rename to the variant filename. For the canonical 0111 variant,
-          # also produce the cv_<lang>.pdf back-compat alias so existing
-          # consumers (PersonalPortfolio's deploy.yml) keep working.
+          # Preserve language-only aliases for existing consumers.
           post_compile: |
-            mv "cv_${{ matrix.cv }}.pdf" "cv_${{ matrix.cv }}_${{ matrix.toggles }}.pdf"
-            if [ "${{ matrix.toggles }}" = "0111" ]; then
-              cp "cv_${{ matrix.cv }}_${{ matrix.toggles }}.pdf" "cv_${{ matrix.cv }}.pdf"
+            mv "cv_${{ matrix.cv }}.pdf" "cv_${{ matrix.cv }}_${{ matrix.preset }}_${{ matrix.photo_mode }}.pdf"
+            if [ "${{ matrix.preset }}" = "standard" ] && [ "${{ matrix.photo_mode }}" = "photo" ]; then
+              cp "cv_${{ matrix.cv }}_${{ matrix.preset }}_${{ matrix.photo_mode }}.pdf" "cv_${{ matrix.cv }}.pdf"
             fi
 
-      - name: Upload ${{ matrix.cv }}-${{ matrix.toggles }} PDF
+      - name: Upload ${{ matrix.cv }}-${{ matrix.preset }}-${{ matrix.photo_mode }} PDF
         uses: actions/upload-artifact@v7
         with:
-          name: cv-${{ matrix.cv }}-${{ matrix.toggles }}
+          name: cv-${{ matrix.cv }}-${{ matrix.preset }}-${{ matrix.photo_mode }}
           path: cv_${{ matrix.cv }}*.pdf
+
+  build-ats:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cv: [english, spanish, catalan]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Compile local-only ATS ${{ matrix.cv }} CV
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: ats_${{ matrix.cv }}.tex
+          latexmk_use_xelatex: true
+          pre_compile: |
+            mkdir -p build
+            printf '\\def\\inccertifications{0}\\def\\incextracurricular{1}\\def\\incprojects{1}\\def\\incskills{1}\\def\\incphoto{0}\n' > build/flags.tex
 
   publish:
     # Releases + portfolio dispatch only on merges to main (PR from develop).
@@ -106,16 +125,14 @@ jobs:
           body: |
             CV built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
 
-            **51 PDFs**: 16 section combinations x 3 languages = 48 variants,
-            plus 3 back-compat aliases (`cv_english.pdf`, `cv_spanish.pdf`,
-            `cv_catalan.pdf`) pointing at the canonical 0111 build
-            (skills + projects + extracurricular, no certifications).
+            **27 PDFs**: four named presets x two photo modes x three languages
+            = 24 assets, plus three back-compat aliases (`cv_english.pdf`,
+            `cv_spanish.pdf`, `cv_catalan.pdf`) for the `standard_photo` PDFs.
 
-            **Variant filename**: `cv_<lang>_<toggles>.pdf` where `<toggles>`
-            is a 4-bit string. Position order (left-to-right): `c, e, p, s`
-            (certifications, extracurricular, projects, skills).
-            Example: `cv_english_1011.pdf` = certifications + projects + skills,
-            no extracurricular.
+            **Variant filename**: `cv_<language>_<preset>_<photo-mode>.pdf`.
+            Presets: `standard` (skills, projects, extracurricular),
+            `technical` (skills, projects), `complete` (all optional sections),
+            `concise` (skills). Photo modes: `photo`, `no-photo`.
           files: cv_*.pdf
           prerelease: false
           make_latest: "false"
@@ -144,9 +161,8 @@ jobs:
 
             Built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
 
-            **51 PDFs**: 16 section combinations x 3 languages = 48 variants,
-            plus 3 back-compat aliases (`cv_english.pdf`, `cv_spanish.pdf`,
-            `cv_catalan.pdf`) pointing at the canonical 0111 build.
+            **27 PDFs**: 24 named preset/photo assets plus three back-compat
+            language aliases pointing at the `standard_photo` build.
           files: cv_*.pdf
           prerelease: false
           make_latest: "true"

@@ -1,0 +1,12 @@
+%!TEX TS-program = xelatex
+\input{ats-common}
+\begin{document}
+\atsheader{ML Engineer \& Team Lead}{English (C1)}{Spanish (native) \textbar\ Catalan (native)}
+\input{cv/summary}
+\input{cv/education.tex}
+\ifnum\incskills=1 \input{cv/skills.tex}\fi
+\input{cv/experience.tex}
+\ifnum\incprojects=1 \input{cv/projects.tex}\fi
+\ifnum\incextracurricular=1 \input{cv/extracurricular.tex}\fi
+\ifnum\inccertifications=1 \input{cv/certifications.tex}\fi
+\end{document}

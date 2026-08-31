@@ -1,0 +1,34 @@
+%!TEX TS-program = xelatex
+\documentclass[10pt,a4paper]{article}
+\usepackage[left=1.8cm,right=1.8cm,top=1.5cm,bottom=1.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+\renewcommand{\familydefault}{\sfdefault}
+\IfFileExists{build/flags.tex}{\input{build/flags}}{}
+\providecommand{\incskills}{1}
+\providecommand{\incprojects}{1}
+\providecommand{\incextracurricular}{1}
+\providecommand{\inccertifications}{0}
+
+\newcommand{\atsheader}[3]{%
+  {\LARGE\textbf{Pol Casacuberta}}\\
+  {\large #1}\\
+  Barcelona, Spain \textbar\ +34 671 823 024 \textbar\ \href{mailto:polcg10@gmail.com}{polcg10@gmail.com}\\
+  \href{https://polcasacubertagil.com}{polcasacubertagil.com} \textbar\ \href{https://www.linkedin.com/in/polcasacubertagil}{linkedin.com/in/polcasacubertagil} \textbar\ \href{https://github.com/cuberhaus}{github.com/cuberhaus}\\
+  #2 \textbar\ #3
+}
+\newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\hrule\vspace{0.25em}}
+\newenvironment{cvparagraph}{}{\par}
+\newenvironment{cventries}{}{\par}
+\newcommand{\cventry}[5]{%
+  \noindent\textbf{#1} \textbar\ #2 \hfill #4\\
+  \textit{#3}\par #5\vspace{0.35em}
+}
+\newenvironment{cvitems}{\begin{itemize}[leftmargin=1.4em,itemsep=0.15em,topsep=0.1em]}{\end{itemize}}
+\newenvironment{cvskills}{\begin{description}[leftmargin=3.9cm,labelwidth=3.5cm,itemsep=0.2em]}{\end{description}}
+\newcommand{\cvskill}[2]{\item[\textbf{#1}] #2}
+\newenvironment{cvhonors}{\begin{itemize}[leftmargin=1.4em,itemsep=0.15em,topsep=0.1em]}{\end{itemize}}
+\newcommand{\cvhonor}[4]{\item \textbf{#1}, #2 \hfill #4}
