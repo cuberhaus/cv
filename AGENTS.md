@@ -6,22 +6,24 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 
 - Per-language entry points at the root: `cv_english.tex`, `cv_spanish.tex`, `cv_catalan.tex`.
 - Shared section files under `cv/` with language suffixes: base = English, `_es.tex` = Spanish, `_ca.tex` = Catalan (e.g. `experience.tex` / `experience_es.tex` / `experience_ca.tex`).
-- Template class `awesome-cv.cls`, bundled `fonts/`, and `profile.jpeg` header photo.
-- **Section toggles** (4 optional sections): `certifications`, `extracurricular`, `projects`, `skills`. Always-on: `summary`, `education`, `experience`. Top-level `.tex` files read overrides from `build/flags.tex` (via `\IfFileExists`) and fall back to `\providecommand` defaults (`0111` = canonical, no certifications). Toggle string convention: `cepsbits`, e.g. `1011` = certifications + projects + skills, no extracurricular.
+- Template class `awesome-cv.cls`, bundled `fonts/`, `profile-deloitte.jpeg` default portrait, and retained `profile-legacy.jpeg` portrait.
+- **Curated presets** select the existing four optional sections (`certifications`, `extracurricular`, `projects`, `skills`); summary, education, and experience are always on. `standard` = `0111`, `technical` = `0011`, `complete` = `1111`, and `concise` = `0001` in `c/e/p/s` order. Entry points read overrides from `build/flags.tex` and conditionally include the portrait with `\incphoto`.
+- `ats_english.tex`, `ats_spanish.tex`, and `ats_catalan.tex` provide a local/CI-only ATS-first style using the same localized section files; do not publish it or expose it in PersonalPortfolio.
+- `data/career.yaml` is the public English-first factual inventory for AI-assisted tailoring. Validate with `make validate-career`; it does not automatically update LaTeX content.
 
 ## Build and Test
 
-- `make all` builds all three canonical PDFs into `dist/` via `scripts/build-local.ps1` (PowerShell, XeLaTeX, Docker).
+- `make all` builds all three standard photo PDFs into `dist/` via `scripts/build-local.ps1` (PowerShell, XeLaTeX, Docker); `make curated` builds 24 public assets and `make ats` builds local-only ATS PDFs.
 - `make english` / `make spanish` / `make catalan` build one language; `make clean` / `make distclean` remove `build/` and `dist/`.
-- `make check` builds all and fails if the canonical `0111` variant overflows to 2+ pages - run this before pushing. Page-count is only enforced for `0111`; custom variants may legitimately exceed one page.
-- **Custom variants**: `pwsh scripts/build-local.ps1 english -Toggles 1111` (all on), `-Toggles 0000` (minimum), etc. The script writes `build/flags.tex` then runs latexmk with `-jobname=cv_<lang>_<toggles>`, producing `dist/cv_<lang>_<toggles>.pdf`.
-- CI: `.github/workflows/build.yml` matrix-builds **48 variants** (3 langs x 16 toggle combos) with `xu-cheng/latex-action@v3` (`pre_compile` writes `build/flags.tex`, `post_compile` renames the PDF). On push to `main` it publishes a dated archive release (`v<YYYY.MM.DD>-<sha>`) and retags a rolling `latest` release with **51 PDFs** (48 variants + 3 back-compat `cv_<lang>.pdf` aliases for the canonical 0111 build).
+- `make check` builds the standard photo CVs and performs no page-count enforcement; valid CVs may be multi-page.
+- **Variants**: `pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo`; `-AllCurated` builds every public preset/photo asset. The script writes `build/flags.tex` then runs Dockerized latexmk with descriptive filenames.
+- CI matrix-builds **24 public variants** (3 languages x 4 presets x 2 photo modes) and validates the three local-only ATS PDFs. On push to `main` it publishes a dated archive release and retags `latest` with **27 PDFs** (24 assets plus 3 `cv_<lang>.pdf` aliases for `standard_photo`).
 
 ## Conventions
 
 - Keep the three languages in parity: when editing a section, update all of `*.tex`, `*_es.tex`, and `*_ca.tex` together.
 - One canonical source per language - do not duplicate sections across entry points.
-- Canonical (`0111`) CV must fit on one page (enforced by `make check`). Custom variants may legitimately exceed one page; not enforced.
+- Page count is intentionally not enforced; ensure multi-page output has deliberate breaks and does not clip or overlap.
 - When adding a new toggleable section: scaffold `cv/<name>.tex` + `_es.tex` + `_ca.tex` (template: `\cvsection{...}` and an empty `\begin{cvhonors}\end{cvhonors}`), add a `\providecommand{\inc<name>}{0}` to all three top-level `.tex` files, add `\ifnum\inc<name>=1 \input{cv/<name>...}\fi` at the right position, extend `scripts/build-local.ps1`'s toggle string to N+1 chars, and expand the workflow matrix to `2^N x 3` jobs. Update PersonalPortfolio's checkbox UI in lockstep.
 
 ## Pitfalls
@@ -29,8 +31,8 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 - The `latest` GitHub Release is the live feed for polcasacubertagil.com - breaking `build.yml` breaks the downstream site.
 - The `publish` job deletes and recreates the `latest` tag every push to `main`; preserve that step or the release page will pin to an old commit.
 - Build is XeLaTeX-only (custom fonts in `fonts/`); plain `pdflatex` will not work.
-- The 48-variant CI matrix takes ~3-5 min wall-clock with default GitHub concurrency. Each job has a TeX Live cold-start of ~10-15s; do not add per-job heavy setup steps without considering the multiplier.
-- `cv_<lang>.pdf` (no toggle suffix) is a back-compat alias for `cv_<lang>_0111.pdf`. PersonalPortfolio's `deploy.yml` fetches the alias, so don't rename or drop it without updating the downstream consumer.
+- The 24-variant public matrix plus three ATS checks takes several minutes with default GitHub concurrency. Each job has a TeX Live cold-start; do not add per-job heavy setup steps without considering the multiplier.
+- `cv_<lang>.pdf` (no preset/photo suffix) is a back-compat alias for `cv_<lang>_standard_photo.pdf`. PersonalPortfolio's `deploy.yml` fetches these assets, so update the downstream consumer in lockstep with release changes.
 - The `cv/certifications*.tex` section files are sourced from `PersonalPortfolio/src/data/certifications.json` (single source of truth) and sorted newest-first. When adding or updating a certification, edit the JSON in PersonalPortfolio first, then mirror the change here (issuer names stay English; only dates are localised).
 
 See [README.md](README.md) for full setup.

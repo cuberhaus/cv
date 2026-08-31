@@ -52,7 +52,9 @@
 %	Comment any of the lines below if they are not required
 %-------------------------------------------------------------------------------
 % Available options: circle|rectangle,edge/noedge,left/right
-\photo[rectangle,edge,right]{./profile.jpeg}
+\IfFileExists{build/flags.tex}{\input{build/flags}}{}
+\providecommand{\incphoto}{1}
+\ifnum\incphoto=1 \photo[rectangle,edge,right]{./profile-deloitte.jpeg}\fi
 \name{Pol}{Casacuberta}
 \position{ML Engineer \& Team Lead}
 %\position{Computer scientist{\enskip\cdotp\enskip} AI enthusiast}
@@ -102,7 +104,6 @@
 %	Values: 1 = include, 0 = exclude. summary/education/experience are
 %	always included (not toggleable).
 %-------------------------------------------------------------------------------
-\IfFileExists{build/flags.tex}{\input{build/flags}}{}
 \providecommand{\incskills}{1}
 \providecommand{\incprojects}{1}
 \providecommand{\incextracurricular}{1}

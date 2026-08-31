@@ -3,15 +3,10 @@
 # Final PDFs are copied to ./dist/ for easy access.
 #
 # Usage:
-#   pwsh scripts/build-local.ps1                       # build all 3 (canonical 0111 + cv_<lang>.pdf alias)
-#   pwsh scripts/build-local.ps1 english               # build one (canonical)
-#   pwsh scripts/build-local.ps1 -Check                # build all + fail if canonical variant > 1 page
-#   pwsh scripts/build-local.ps1 -Toggles 1111         # all-on variant: cv_<lang>_1111.pdf
-#   pwsh scripts/build-local.ps1 english -Toggles 0000 # minimum variant: cv_english_0000.pdf
-#
-# Toggle string positions (left-to-right): c, e, p, s
-#   c = certifications, e = extracurricular, p = projects, s = skills
-# '0111' (default) = skills+projects+extracurricular, no certifications -- matches the canonical CV.
+#   pwsh scripts/build-local.ps1                                      # standard photo CVs in all languages
+#   pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo
+#   pwsh scripts/build-local.ps1 -AllCurated                          # 24 public release assets
+#   pwsh scripts/build-local.ps1 catalan -Style ats -PhotoMode no-photo
 
 [CmdletBinding()]
 param(
@@ -19,15 +14,18 @@ param(
     [ValidateSet('all', 'english', 'spanish', 'catalan')]
     [string]$Target = 'all',
 
-    [ValidatePattern('^[01]{4}$')]
-    [string]$Toggles = '0111',
+    [ValidateSet('standard', 'technical', 'complete', 'concise')]
+    [string]$Preset = 'standard',
+
+    [ValidateSet('photo', 'no-photo')]
+    [string]$PhotoMode = 'photo',
+
+    [ValidateSet('awesome', 'ats')]
+    [string]$Style = 'awesome',
 
     [switch]$Check,
 
-    # When true, do not emit the back-compat cv_<lang>.pdf alias for the
-    # canonical 0111 build. The matrix script sets this so 16 variants per
-    # language do not all try to overwrite the same alias.
-    [switch]$NoAlias
+    [switch]$AllCurated
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,6 +33,12 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $image = 'texlive/texlive:latest'
 $buildDir = Join-Path $repoRoot 'build'
 $distDir  = Join-Path $repoRoot 'dist'
+$presetBits = @{
+    standard = '0111'
+    technical = '0011'
+    complete = '1111'
+    concise = '0001'
+}
 
 $targets = switch ($Target) {
     'english' { @('cv_english') }
@@ -43,22 +47,40 @@ $targets = switch ($Target) {
     default   { @('cv_english', 'cv_spanish', 'cv_catalan') }
 }
 
+if ($AllCurated) {
+    if ($Style -ne 'awesome') {
+        throw '-AllCurated only builds public Awesome-CV release assets.'
+    }
+    foreach ($presetName in @('standard', 'technical', 'complete', 'concise')) {
+        foreach ($photoName in @('photo', 'no-photo')) {
+            & $PSCommandPath -Target $Target -Preset $presetName -PhotoMode $photoName
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        }
+    }
+    return
+}
+
+if ($Style -eq 'ats' -and $PhotoMode -ne 'no-photo') {
+    throw 'The ATS style is intentionally photo-free; use -PhotoMode no-photo.'
+}
+
 foreach ($d in @($buildDir, $distDir)) {
     if (-not (Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null }
 }
 
-# Map the 4-bit toggle string to \def\inc*{0|1} overrides written to
-# build/flags.tex (input'd by the top-level .tex files via \IfFileExists).
-# Order matches the toggle string (left to right): c, e, p, s.
-$bits = $Toggles.ToCharArray()
+$bits = $presetBits[$Preset].ToCharArray()
+$includePhoto = if ($PhotoMode -eq 'photo') { '1' } else { '0' }
 
 Write-Host "Using image: $image" -ForegroundColor Cyan
 Write-Host "Aux dir:     $buildDir" -ForegroundColor Cyan
 Write-Host "PDF dir:     $distDir" -ForegroundColor Cyan
-Write-Host "Toggles:     $Toggles  (c=$($bits[0]) e=$($bits[1]) p=$($bits[2]) s=$($bits[3]))" -ForegroundColor Cyan
+Write-Host "Style:       $Style" -ForegroundColor Cyan
+Write-Host "Preset:      $Preset  (c=$($bits[0]) e=$($bits[1]) p=$($bits[2]) s=$($bits[3]))" -ForegroundColor Cyan
+Write-Host "Photo mode:  $PhotoMode" -ForegroundColor Cyan
 
 foreach ($t in $targets) {
-    $variantStem = "${t}_$Toggles"
+    $sourceStem = if ($Style -eq 'awesome') { $t } else { $t -replace '^cv_', 'ats_' }
+    $variantStem = if ($Style -eq 'awesome') { "${t}_${Preset}_${PhotoMode}" } else { "${sourceStem}_${Preset}" }
     Write-Host "`n=== Building $variantStem.pdf ===" -ForegroundColor Yellow
 
     # Use -jobname so latexmk writes <variantStem>.{aux,log,pdf} to keep
@@ -67,7 +89,7 @@ foreach ($t in $targets) {
         -v "${repoRoot}:/workdir" `
         -w /workdir `
         $image `
-        bash -c "printf '\\def\\inccertifications{$($bits[0])}\\def\\incextracurricular{$($bits[1])}\\def\\incprojects{$($bits[2])}\\def\\incskills{$($bits[3])}\\n' > build/flags.tex && latexmk -xelatex -interaction=nonstopmode -halt-on-error -output-directory=build -jobname=$variantStem $t.tex"
+        bash -c "printf '\\def\\inccertifications{$($bits[0])}\\def\\incextracurricular{$($bits[1])}\\def\\incprojects{$($bits[2])}\\def\\incskills{$($bits[3])}\\def\\incphoto{$includePhoto}\\n' > build/flags.tex && latexmk -xelatex -interaction=nonstopmode -halt-on-error -output-directory=build -jobname=$variantStem $sourceStem.tex"
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for $variantStem"
     }
@@ -77,47 +99,14 @@ foreach ($t in $targets) {
     Copy-Item -Path $srcPdf -Destination $dstPdf -Force
     Write-Host "  -> $dstPdf" -ForegroundColor DarkGray
 
-    # Back-compat alias: cv_<lang>.pdf == cv_<lang>_0111.pdf (the canonical
-    # build). Keeps existing release-asset URLs working for consumers (e.g.
-    # PersonalPortfolio's deploy.yml which fetches `$BASE/cv_english.pdf`).
-    if ($Toggles -eq '0111' -and -not $NoAlias) {
+    # Keep existing consumers on the photo-enabled standard asset.
+    if ($Style -eq 'awesome' -and $Preset -eq 'standard' -and $PhotoMode -eq 'photo') {
         $aliasPdf = Join-Path $distDir "$t.pdf"
         Copy-Item -Path $srcPdf -Destination $aliasPdf -Force
         Write-Host "  -> $aliasPdf (back-compat alias)" -ForegroundColor DarkGray
     }
 }
 
-# Page-count check (parses the xelatex log written during the build).
-# Only enforced for the canonical 0111 variant -- custom variants are
-# intentional user choices and may legitimately exceed 1 page.
 if ($Check) {
-    if ($Toggles -ne '0111') {
-        Write-Host "`n-Check is only enforced for the canonical 0111 variant. Skipping for $Toggles." -ForegroundColor DarkYellow
-        return
-    }
-    $overflow = @()
-    foreach ($t in $targets) {
-        $variantStem = "${t}_$Toggles"
-        $log = Join-Path $buildDir "$variantStem.log"
-        if (-not (Test-Path $log)) {
-            Write-Host ("  ? {0}: no log file" -f $variantStem) -ForegroundColor DarkYellow
-            continue
-        }
-        $match = Select-String -Path $log -Pattern 'Output written on .*\((\d+) pages?' |
-            Select-Object -Last 1
-        if (-not $match) {
-            Write-Host ("  ? {0}: page count not found in log" -f $variantStem) -ForegroundColor DarkYellow
-            continue
-        }
-        $pages = [int]$match.Matches[0].Groups[1].Value
-        $mark = if ($pages -gt 1) { 'X' } else { 'OK' }
-        $color = if ($pages -gt 1) { 'Red' } else { 'Green' }
-        Write-Host ("  [{0}] {1}: {2} page(s)" -f $mark, $variantStem, $pages) -ForegroundColor $color
-        if ($pages -gt 1) { $overflow += $variantStem }
-    }
-    if ($overflow.Count -gt 0) {
-        Write-Host "`nOverflow detected: $($overflow -join ', ')" -ForegroundColor Red
-        exit 1
-    }
-    Write-Host "`nCanonical 0111 build fits on one page in all languages." -ForegroundColor Green
+    Write-Host "`nCompilation completed successfully." -ForegroundColor Green
 }

@@ -1,0 +1,113 @@
+schema_version: 1
+person:
+  id: pol-casacuberta
+  name: Pol Casacuberta
+  location: Barcelona, Catalonia, Spain
+  languages:
+    - id: english-c1
+      language: English
+      proficiency: C1
+    - id: spanish-native
+      language: Spanish
+      proficiency: native
+    - id: catalan-native
+      language: Catalan
+      proficiency: native
+experience:
+  - id: deloitte-ai-ml-engineer-team-lead
+    organization: Deloitte
+    role: AI & ML Engineer / Team Lead
+    location: Barcelona, Catalonia, Spain
+    start_date: 2024-09
+    end_date: present
+    tags: [ai, machine-learning, computer-vision, physical-ai, cloud, leadership]
+    publishable: true
+    evidence: []
+    achievements:
+      - id: horse-physical-ai
+        text: "Led a six-person team delivering Deloitte's first Physical AI project at HORSE Powertrain: production-line anomaly detection and a camera-tracked warehouse digital twin using NVIDIA Omniverse, Isaac Sim, DeepStream, TAO, and Triton."
+        metrics:
+          team_size: 6
+      - id: aragon-talent-matching
+        text: Built a production AI talent-matching platform for Gobierno de Aragón that transformed PDFs into structured JSON and RAG vectors for semantic candidate-job matching.
+        metrics:
+          team_size: 10
+          indexed_resumes: 10000
+          transform_seconds: 20
+      - id: cloud-ai-infrastructure
+        text: Designed and deployed edge inference, streaming pipelines, cloud-hosted training, and model serving across AWS, Azure, and GCP.
+        metrics: {}
+  - id: mgs-ai-engineer
+    organization: MGS, Seguros y Reaseguros S.A.
+    role: AI Engineer
+    location: Barcelona, Catalonia, Spain
+    start_date: 2023-09
+    end_date: 2024-09
+    tags: [ai, insurance, sql-server, powershell, geospatial]
+    publishable: true
+    evidence: []
+    achievements:
+      - id: pricing-prediction
+        text: Built pricing prediction models in a four-person AI and data team supporting insurance product analytics.
+        metrics:
+          team_size: 4
+      - id: sql-server-automation
+        text: Automated recurring SQL Server data-processing and reporting workflows with PowerShell.
+        metrics: {}
+      - id: geospatial-analysis
+        text: Developed geospatial analysis projects in R and RStudio using map data for location-based business insights.
+        metrics: {}
+education:
+  - id: fib-computer-science-engineering
+    institution: Universitat Politècnica de Catalunya - Facultat d'Informàtica de Barcelona
+    qualification: B.Sc. in Computer Science and Engineering
+    location: Barcelona, Spain
+    start_date: 2019-03
+    end_date: 2023-07
+    tags: [computer-science, machine-learning]
+    publishable: true
+    evidence: []
+projects:
+  - id: polyp-detection-thesis
+    name: Polyp Detection
+    context: Bachelor's Thesis, FIB-UPC, 2023
+    tags: [computer-vision, medical-imaging, pytorch, cyclegan, spade, optuna, ray-tune]
+    publishable: true
+    evidence: []
+    summary: Faster R-CNN, RetinaNet, and SSD detectors on colonoscopy images, augmented with synthetic data and tuned with Optuna and Ray Tune.
+  - id: personal-portfolio
+    name: polcasacubertagil.com
+    tags: [astro, typescript, i18n, machine-learning, github-actions, latex]
+    publishable: true
+    evidence:
+      - https://polcasacubertagil.com
+    summary: Multilingual Astro portfolio with interactive in-browser ML demos and a CI-driven LaTeX CV pipeline.
+  - id: draculin
+    name: Draculin
+    context: bitsxlaMarató 2023 finalist
+    tags: [flutter, django, llm, computer-vision, health]
+    publishable: true
+    evidence: []
+    summary: Health-tracking application with an LLM chatbot and computer-vision image analysis.
+skills:
+  - id: ai-ml
+    category: AI & ML
+    items: [Machine Learning, PyTorch, scikit-learn, MLOps, Statistics]
+  - id: computer-vision-genai
+    category: Computer Vision & GenAI
+    items: [Computer Vision, OpenCV, Object Detection, LLMs, RAG, Vector Search, LangChain]
+  - id: physical-ai-nvidia
+    category: Physical AI & NVIDIA Stack
+    items: [NVIDIA Omniverse, Isaac Sim, DeepStream, TAO Toolkit, Triton Inference Server]
+  - id: cloud-data
+    category: Cloud & Data Platforms
+    items: [AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions, PostgreSQL, FastAPI, Informatica]
+  - id: programming-languages
+    category: Programming Languages
+    items: [Python, TypeScript, JavaScript, C, C++, Java, SQL]
+certifications:
+  - id: cambridge-c1-advanced
+    name: Cambridge English C1 Advanced
+    issued_at: 2019-01
+    publishable: true
+    evidence: []
