@@ -19,7 +19,9 @@ Built on the [Awesome-CV](https://github.com/posquit0/Awesome-CV) template
 │   ├── education.tex / education_es.tex / education_ca.tex
 │   ├── skills.tex / skills_es.tex / skills_ca.tex
 │   └── experience.tex / experience_es.tex / experience_ca.tex
-├── data/career.yaml     # AI-tailoring factual inventory
+├── data/
+│   ├── career.yaml      # AI-tailoring factual inventory
+│   └── README.md        # inventory schema and reviewed tailoring workflow
 ├── fonts/               # bundled fonts used by XeLaTeX
 ├── profile-deloitte.jpeg # default CV portrait
 └── profile-legacy.jpeg  # retained prior portrait
@@ -66,4 +68,26 @@ the same section files and must not fork their content.
 
 `data/career.yaml` is an English-first factual inventory for AI-assisted
 tailoring. It is context for reviewed CV proposals, not an automatic generator
-or replacement for the LaTeX sections. Run `make validate-career` after edits.
+or replacement for the LaTeX sections. Its [authoring guide](data/README.md)
+defines every field, validation rules, and a fact-constrained example tailoring
+prompt. Run `make validate-career` after edits.
+
+## Adding another visual style
+
+Awesome-CV remains the canonical public style. The ATS-first files demonstrate
+how to add an optional local/CI style without copying career content:
+
+1. Add one shared style file, such as `newstyle-common.tex`, containing only
+   layout and typography.
+2. Add English, Spanish, and Catalan entry points that load the shared style and
+   the existing localized files under `cv/`.
+3. Extend the `-Style` validation and source-name mapping in
+   `scripts/build-local.ps1`, then expose an explicit Make target.
+4. Add CI compilation for all three languages. Keep the style out of release
+   upload patterns and PersonalPortfolio unless a separate release-contract
+   change explicitly makes it public.
+5. Build all languages through Docker and inspect extracted text order as well
+   as the rendered pages before delivery.
+
+Do not fork section content for a visual style. Facts and translations continue
+to belong to the existing `cv/*.tex` language files.
