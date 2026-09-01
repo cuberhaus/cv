@@ -89,7 +89,7 @@ foreach ($t in $targets) {
         -v "${repoRoot}:/workdir" `
         -w /workdir `
         $image `
-        bash -c "printf '\\def\\inccertifications{$($bits[0])}\\def\\incextracurricular{$($bits[1])}\\def\\incprojects{$($bits[2])}\\def\\incskills{$($bits[3])}\\def\\incphoto{$includePhoto}\\n' > build/flags.tex && latexmk -xelatex -interaction=nonstopmode -halt-on-error -output-directory=build -jobname=$variantStem $sourceStem.tex"
+        bash -c "printf '\\def\\inccertifications{$($bits[0])}\\def\\incextracurricular{$($bits[1])}\\def\\incprojects{$($bits[2])}\\def\\incskills{$($bits[3])}\\def\\incphoto{$includePhoto}\n' > build/flags.tex && latexmk -xelatex -interaction=nonstopmode -halt-on-error -output-directory=build -jobname=$variantStem $sourceStem.tex"
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for $variantStem"
     }
