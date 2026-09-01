@@ -28,6 +28,7 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 
 ## Pitfalls
 
+- Always build and validate LaTeX through the Docker-backed `scripts/build-local.ps1` targets or GitHub Actions. Do not run host-installed TeX binaries or install host TeX packages as a fallback.
 - The `latest` GitHub Release is the live feed for polcasacubertagil.com - breaking `build.yml` breaks the downstream site.
 - The `publish` job deletes and recreates the `latest` tag every push to `main`; preserve that step or the release page will pin to an old commit.
 - Build is XeLaTeX-only (custom fonts in `fonts/`); plain `pdflatex` will not work.
