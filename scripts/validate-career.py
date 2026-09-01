@@ -36,6 +36,14 @@ def require_list(value: Any, context: str) -> list[Any]:
     return value
 
 
+def register_unique_id(value: Any, context: str, seen_ids: set[str]) -> str:
+    record_id = require_string(value, context)
+    if record_id in seen_ids:
+        raise CareerValidationError(f"duplicate id: {record_id}")
+    seen_ids.add(record_id)
+    return record_id
+
+
 def validate_date(value: Any, context: str, *, allow_present: bool = False) -> None:
     if allow_present and value == "present":
         return
@@ -62,24 +70,22 @@ def validate(document: Any) -> None:
     if data.get("schema_version") != 1:
         raise CareerValidationError("schema_version must be 1")
 
+    seen_ids: set[str] = set()
     person = require_mapping(data.get("person"), "person")
-    require_string(person.get("id"), "person.id")
+    register_unique_id(person.get("id"), "person.id", seen_ids)
     require_string(person.get("name"), "person.name")
     require_string(person.get("location"), "person.location")
     for index, language in enumerate(require_list(person.get("languages"), "person.languages")):
         language_data = require_mapping(language, f"person.languages[{index}]")
-        require_string(language_data.get("id"), f"person.languages[{index}].id")
+        register_unique_id(language_data.get("id"), f"person.languages[{index}].id", seen_ids)
         require_string(language_data.get("language"), f"person.languages[{index}].language")
         require_string(language_data.get("proficiency"), f"person.languages[{index}].proficiency")
 
-    seen_ids: set[str] = set()
     for collection in REQUIRED_COLLECTIONS:
         for index, record in enumerate(require_list(data.get(collection), collection)):
             context = f"{collection}[{index}]"
             record_id = validate_tagged_record(record, context, requires_publication=collection != "skills")
-            if record_id in seen_ids:
-                raise CareerValidationError(f"duplicate id: {record_id}")
-            seen_ids.add(record_id)
+            register_unique_id(record_id, f"{context}.id", seen_ids)
 
             record_data = require_mapping(record, context)
             if collection == "experience":
@@ -89,7 +95,11 @@ def validate(document: Any) -> None:
                 validate_date(record_data.get("end_date"), f"{context}.end_date", allow_present=True)
                 for achievement_index, achievement in enumerate(require_list(record_data.get("achievements"), f"{context}.achievements")):
                     achievement_data = require_mapping(achievement, f"{context}.achievements[{achievement_index}]")
-                    require_string(achievement_data.get("id"), f"{context}.achievements[{achievement_index}].id")
+                    register_unique_id(
+                        achievement_data.get("id"),
+                        f"{context}.achievements[{achievement_index}].id",
+                        seen_ids,
+                    )
                     require_string(achievement_data.get("text"), f"{context}.achievements[{achievement_index}].text")
                     require_mapping(achievement_data.get("metrics"), f"{context}.achievements[{achievement_index}].metrics")
             elif collection == "education":

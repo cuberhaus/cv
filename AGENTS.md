@@ -9,7 +9,7 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 - Template class `awesome-cv.cls`, bundled `fonts/`, `profile-deloitte.jpeg` default portrait, and retained `profile-legacy.jpeg` portrait.
 - **Curated presets** select the existing four optional sections (`certifications`, `extracurricular`, `projects`, `skills`); summary, education, and experience are always on. `standard` = `0111`, `technical` = `0011`, `complete` = `1111`, and `concise` = `0001` in `c/e/p/s` order. Entry points read overrides from `build/flags.tex` and conditionally include the portrait with `\incphoto`.
 - `ats_english.tex`, `ats_spanish.tex`, and `ats_catalan.tex` provide a local/CI-only ATS-first style using the same localized section files; do not publish it or expose it in PersonalPortfolio.
-- `data/career.yaml` is the public English-first factual inventory for AI-assisted tailoring. Validate with `make validate-career`; it does not automatically update LaTeX content.
+- `data/career.yaml` is the public English-first factual inventory for AI-assisted tailoring. Its schema and reviewed tailoring workflow are documented in `data/README.md`. Validate with `make validate-career`; it does not automatically update LaTeX content.
 
 ## Build and Test
 

@@ -30,6 +30,15 @@ class ValidateCareerTests(unittest.TestCase):
         with self.assertRaisesRegex(validate_career.CareerValidationError, "duplicate id"):
             validate_career.validate(invalid_inventory)
 
+    def test_duplicate_achievement_ids_are_rejected(self) -> None:
+        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory["experience"][1]["achievements"][0]["id"] = (
+            invalid_inventory["experience"][0]["achievements"][0]["id"]
+        )
+
+        with self.assertRaisesRegex(validate_career.CareerValidationError, "duplicate id"):
+            validate_career.validate(invalid_inventory)
+
     def test_invalid_dates_are_rejected(self) -> None:
         invalid_inventory = deepcopy(self.inventory)
         invalid_inventory["education"][0]["start_date"] = "2023"
