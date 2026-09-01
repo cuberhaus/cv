@@ -35,7 +35,9 @@ make all       # standard, photo-enabled PDFs in all languages
 make english   # standard, photo-enabled English CV
 make spanish   # standard, photo-enabled Spanish CV
 make catalan   # standard, photo-enabled Catalan CV
-make curated   # 24 public named-preset/photo assets
+make curated   # 24 public assets, built in one container with 4 parallel jobs
+make curated-language LANGUAGE=spanish
+make curated-preset PRESET=complete
 make ats       # three local-only ATS-first PDFs
 make check     # compile standard, photo-enabled PDFs (no page-count limit)
 make validate-career
@@ -46,6 +48,11 @@ Presets are `standard`, `technical`, `complete`, and `concise`; photo modes are
 `photo` and `no-photo`. The language-only files remain compatibility aliases
 for each language's `standard_photo` PDF. The ATS-first style remains local/CI
 only and is not released or shown in PersonalPortfolio.
+
+Set `CURATED_JOBS` to tune bounded parallelism, for example
+`make curated CURATED_JOBS=2`. Focused targets use the same single-container
+builder and are intended for development; run the complete `make curated`
+matrix before delivery.
 
 `make check` verifies compilation and intentionally does not reject multi-page
 CVs.

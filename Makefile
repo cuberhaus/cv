@@ -1,13 +1,16 @@
 SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
+CURATED_JOBS ?= 4
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all curated english spanish catalan ats check validate-career clean distclean hooks lint
+.PHONY: help all curated curated-language curated-preset english spanish catalan ats check validate-career clean distclean hooks lint
 
 help:
 	@echo "CV build targets:"
 	@echo "  make all        Build standard photo CVs in all languages -> dist/"
-	@echo "  make curated    Build all public preset/photo combinations -> dist/"
+	@echo "  make curated    Build all public variants in one container -> dist/"
+	@echo "  make curated-language LANGUAGE=spanish  Build one language's public variants"
+	@echo "  make curated-preset PRESET=complete     Build one preset in all languages"
 	@echo "  make english    Build standard photo English CV -> dist/"
 	@echo "  make spanish    Build standard photo Spanish CV -> dist/"
 	@echo "  make catalan    Build standard photo Catalan CV -> dist/"
@@ -37,7 +40,13 @@ catalan:
 	$(SCRIPT) catalan
 
 curated:
-	$(SCRIPT) -AllCurated
+	$(SCRIPT) -AllCurated -Parallelism $(CURATED_JOBS)
+
+curated-language:
+	$(SCRIPT) $(LANGUAGE) -AllCurated -Parallelism $(CURATED_JOBS)
+
+curated-preset:
+	$(SCRIPT) -AllCurated -OnlyPreset $(PRESET) -Parallelism $(CURATED_JOBS)
 
 ats:
 	$(SCRIPT) -Style ats -PhotoMode no-photo
