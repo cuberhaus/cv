@@ -25,66 +25,21 @@ jobs:
       # all broken variants in a single run, not one at a time.
       fail-fast: false
       matrix:
-        cv: [english, spanish, catalan]
-        # Four curated presets x two photo modes x three languages = 24
-        # public assets. Bits retain the existing c/e/p/s section contract.
-        preset: [standard, technical, complete, concise]
-        photo_mode: [photo, no-photo]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-
-      - name: Compile ${{ matrix.cv }} ${{ matrix.preset }} ${{ matrix.photo_mode }} CV
-        uses: xu-cheng/latex-action@v4
-        with:
-          root_file: cv_${{ matrix.cv }}.tex
-          latexmk_use_xelatex: true
-          # Each preset maps to existing c/e/p/s section flags. Photo mode
-          # controls the conditional \photo declaration in every entry point.
-          pre_compile: |
-            mkdir -p build
-            case "${{ matrix.preset }}" in
-              standard) T=0111 ;;
-              technical) T=0011 ;;
-              complete) T=1111 ;;
-              concise) T=0001 ;;
-            esac
-            PHOTO=0
-            if [ "${{ matrix.photo_mode }}" = "photo" ]; then PHOTO=1; fi
-            printf '\\def\\inccertifications{%s}\\def\\incextracurricular{%s}\\def\\incprojects{%s}\\def\\incskills{%s}\\def\\incphoto{%s}\n' \
-              "${T:0:1}" "${T:1:1}" "${T:2:1}" "${T:3:1}" "$PHOTO" > build/flags.tex
-            cat build/flags.tex
-          # Preserve language-only aliases for existing consumers.
-          post_compile: |
-            mv "cv_${{ matrix.cv }}.pdf" "cv_${{ matrix.cv }}_${{ matrix.preset }}_${{ matrix.photo_mode }}.pdf"
-            if [ "${{ matrix.preset }}" = "standard" ] && [ "${{ matrix.photo_mode }}" = "photo" ]; then
-              cp "cv_${{ matrix.cv }}_${{ matrix.preset }}_${{ matrix.photo_mode }}.pdf" "cv_${{ matrix.cv }}.pdf"
-            fi
-
-      - name: Upload ${{ matrix.cv }}-${{ matrix.preset }}-${{ matrix.photo_mode }} PDF
-        uses: actions/upload-artifact@v7
-        with:
-          name: cv-${{ matrix.cv }}-${{ matrix.preset }}-${{ matrix.photo_mode }}
-          path: cv_${{ matrix.cv }}*.pdf
-
-  build-ats:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
+        # One TeX container per language replaces the former 27-job fan-out.
+        # Each job builds eight public variants plus its unpublished ATS check.
         cv: [english, spanish, catalan]
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Compile local-only ATS ${{ matrix.cv }} CV
-        uses: xu-cheng/latex-action@v4
+      - name: Compile public and ATS ${{ matrix.cv }} CVs
+        run: pwsh -NoProfile -File scripts/build-local.ps1 ${{ matrix.cv }} -AllCurated -IncludeAts -Parallelism 2
+
+      - name: Upload public ${{ matrix.cv }} PDFs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          root_file: ats_${{ matrix.cv }}.tex
-          latexmk_use_xelatex: true
-          pre_compile: |
-            mkdir -p build
-            printf '\\def\\inccertifications{0}\\def\\incextracurricular{1}\\def\\incprojects{1}\\def\\incskills{1}\\def\\incphoto{0}\n' > build/flags.tex
+          name: cv-${{ matrix.cv }}
+          path: dist/cv_${{ matrix.cv }}*.pdf
 
   publish:
     # Releases + portfolio dispatch only on merges to main (PR from develop).
@@ -96,10 +51,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Download all CV PDFs
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: cv-*
           merge-multiple: true
@@ -118,24 +73,24 @@ jobs:
           echo "Release tag: ${TAG}"
 
       - name: Publish PDFs to dated release (archive)
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})
-          body: |
-            CV built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > release-notes.md <<'EOF'
+          CV built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
 
-            **27 PDFs**: four named presets x two photo modes x three languages
-            = 24 assets, plus three back-compat aliases (`cv_english.pdf`,
-            `cv_spanish.pdf`, `cv_catalan.pdf`) for the `standard_photo` PDFs.
+          **27 PDFs**: four named presets x two photo modes x three languages
+          = 24 assets, plus three back-compat aliases (`cv_english.pdf`,
+          `cv_spanish.pdf`, `cv_catalan.pdf`) for the `standard_photo` PDFs.
 
-            **Variant filename**: `cv_<language>_<preset>_<photo-mode>.pdf`.
-            Presets: `standard` (skills, projects, extracurricular),
-            `technical` (skills, projects), `complete` (all optional sections),
-            `concise` (skills). Photo modes: `photo`, `no-photo`.
-          files: cv_*.pdf
-          prerelease: false
-          make_latest: "false"
+          **Variant filename**: `cv_<language>_<preset>_<photo-mode>.pdf`.
+          Presets: `standard` (skills, projects, extracurricular),
+          `technical` (skills, projects), `complete` (all optional sections),
+          `concise` (skills). Photo modes: `photo`, `no-photo`.
+          EOF
+          gh release create "${{ steps.tag.outputs.tag }}" cv_*.pdf \
+            --title "CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})" \
+            --notes-file release-notes.md --latest=false
 
       - name: Delete previous "latest" tag/release so it retags this commit
         env:
@@ -149,23 +104,21 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
 
       - name: Publish PDFs to rolling "latest" release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: latest
-          target_commitish: ${{ github.sha }}
-          name: Latest CV
-          body: |
-            Auto-generated from the latest commit on `main`.
-            Rebuilt on every push. For permanent archived versions see the
-            dated releases (`v<YYYY.MM.DD>-<sha>`).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > latest-notes.md <<'EOF'
+          Auto-generated from the latest commit on `main`.
+          Rebuilt on every push. For permanent archived versions see the
+          dated releases (`v<YYYY.MM.DD>-<sha>`).
 
-            Built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
+          Built from commit `${{ github.sha }}` on ${{ steps.tag.outputs.date }}.
 
-            **27 PDFs**: 24 named preset/photo assets plus three back-compat
-            language aliases pointing at the `standard_photo` build.
-          files: cv_*.pdf
-          prerelease: false
-          make_latest: "true"
+          **27 PDFs**: 24 named preset/photo assets plus three back-compat
+          language aliases pointing at the `standard_photo` build.
+          EOF
+          gh release create latest cv_*.pdf --target "${{ github.sha }}" \
+            --title "Latest CV" --notes-file latest-notes.md --latest
 
       - name: Trigger PersonalPortfolio redeploy
         env:

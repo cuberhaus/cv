@@ -13,10 +13,10 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 
 ## Build and Test
 
-- `make all` builds all three standard photo PDFs into `dist/` via `scripts/build-local.ps1` (PowerShell, XeLaTeX, Docker); `make curated` builds 24 public assets and `make ats` builds local-only ATS PDFs.
+- `make all` builds all three standard photo PDFs into `dist/` via `scripts/build-local.ps1` (PowerShell, XeLaTeX, Docker); `make curated` builds 24 public assets and `make ats` builds local-only ATS PDFs. CI runs three language jobs, each building its eight public variants and ATS validation in one TeX container.
 - `make english` / `make spanish` / `make catalan` build one language; `make clean` / `make distclean` remove `build/` and `dist/`.
 - `make check` builds the standard photo CVs and performs no page-count enforcement; valid CVs may be multi-page.
-- **Variants**: `pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo`; `-AllCurated` builds every public preset/photo asset. The script writes `build/flags.tex` then runs Dockerized latexmk with descriptive filenames.
+- **Variants**: `pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo`; `-AllCurated` builds every public preset/photo asset and `-IncludeAts` adds local-only ATS validation to that same container. The script uses isolated driver, job, build, and output paths for each variant.
 - CI matrix-builds **24 public variants** (3 languages x 4 presets x 2 photo modes) and validates the three local-only ATS PDFs. On push to `main` it publishes a dated archive release and retags `latest` with **27 PDFs** (24 assets plus 3 `cv_<lang>.pdf` aliases for `standard_photo`).
 
 ## Conventions
@@ -24,7 +24,7 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 - Keep the three languages in parity: when editing a section, update all of `*.tex`, `*_es.tex`, and `*_ca.tex` together.
 - One canonical source per language - do not duplicate sections across entry points.
 - Page count is intentionally not enforced; ensure multi-page output has deliberate breaks and does not clip or overlap.
-- When adding a new toggleable section: scaffold `cv/<name>.tex` + `_es.tex` + `_ca.tex` (template: `\cvsection{...}` and an empty `\begin{cvhonors}\end{cvhonors}`), add a `\providecommand{\inc<name>}{0}` to all three top-level `.tex` files, add `\ifnum\inc<name>=1 \input{cv/<name>...}\fi` at the right position, extend `scripts/build-local.ps1`'s toggle string to N+1 chars, and expand the workflow matrix to `2^N x 3` jobs. Update PersonalPortfolio's checkbox UI in lockstep.
+- When adding a new toggleable section: scaffold `cv/<name>.tex` + `_es.tex` + `_ca.tex` (template: `\cvsection{...}` and an empty `\begin{cvhonors}\end{cvhonors}`), add a `\providecommand{\inc<name>}{0}` to all three top-level `.tex` files, add `\ifnum\inc<name>=1 \input{cv/<name>...}\fi` at the right position, extend `scripts/build-local.ps1`'s toggle string to N+1 chars, and keep each CI language job building all `2^N` public variants plus ATS. Update PersonalPortfolio's checkbox UI in lockstep.
 
 ## Pitfalls
 
