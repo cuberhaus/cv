@@ -7,7 +7,7 @@ Built on the [Awesome-CV](https://github.com/posquit0/Awesome-CV) template
 
 ## Layout
 
-```
+```text
 .
 ├── awesome-cv.cls       # upstream template class
 ├── cv_english.tex       # English entry point
@@ -55,6 +55,10 @@ Set `CURATED_JOBS` to tune bounded parallelism, for example
 `make curated CURATED_JOBS=2`. Focused targets use the same single-container
 builder and are intended for development; run the complete `make curated`
 matrix before delivery.
+
+CI uses three language-level jobs. Each starts one TeX container to build that
+language's eight public PDFs and its unpublished ATS validation with two
+bounded parallel compiles.
 
 `make check` verifies compilation and intentionally does not reject multi-page
 CVs.
