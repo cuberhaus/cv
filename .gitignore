@@ -13,3 +13,9 @@
 # Local build output (PDFs are published via GitHub Releases, not tracked)
 build/
 dist/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
