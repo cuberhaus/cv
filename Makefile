@@ -73,9 +73,9 @@ lint: ## Run chktex on the three .tex sources (requires TeX Live)
 
 ##@ Setup & Tooling
 
-hooks: ## Enable tracked git hooks (.githooks/ pre-push guard)
+hooks: ## Enable tracked git hooks (.githooks/ pre-commit guard)
 	git config core.hooksPath .githooks
-	@echo "Git hooks enabled from .githooks/ (pre-push guards main/master)."
+	@echo "Git hooks enabled from .githooks/ (pre-commit blocks commits on main/master)."
 
 ##@ Cleanup
 
