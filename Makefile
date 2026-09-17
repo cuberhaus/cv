@@ -1,78 +1,94 @@
-SCRIPT = pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
+SCRIPT ?= pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
 CURATED_JOBS ?= 4
+
+ifeq ($(OS),Windows_NT)
+  PYTHON ?= python
+else
+  PYTHON ?= python3
+endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all curated curated-language curated-preset english spanish catalan ats check validate-career clean distclean hooks lint
+.PHONY: help all english spanish catalan \
+        curated curated-language curated-preset ats \
+        check validate-career test lint \
+        hooks clean distclean
 
-help:
-	@echo "CV build targets:"
-	@echo "  make all        Build standard photo CVs in all languages -> dist/"
-	@echo "  make curated    Build all public variants in one container -> dist/"
-	@echo "  make curated-language LANGUAGE=spanish  Build one language's public variants"
-	@echo "  make curated-preset PRESET=complete     Build one preset in all languages"
-	@echo "  make english    Build standard photo English CV -> dist/"
-	@echo "  make spanish    Build standard photo Spanish CV -> dist/"
-	@echo "  make catalan    Build standard photo Catalan CV -> dist/"
-	@echo "  make ats        Build the three local-only ATS CVs -> dist/"
-	@echo "  make check      Compile the standard photo CVs in all languages"
-	@echo "  make validate-career  Validate the AI tailoring inventory"
-	@echo "  make lint       Run chktex on the three .tex sources (requires TeX Live)"
-	@echo "  make clean      Remove build/ (aux, logs, .xdv)"
-	@echo "  make distclean  Remove build/ and dist/ (also final PDFs)"
-	@echo "  make hooks      Enable tracked git hooks (pre-push guard against direct pushes to main/master)"
-	@echo "  make help       Show this message"
+##@ General
+
+help: ## Show this help message
+	@awk ' \
+		/^##@/      { printf "\n\033[1m%s\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_-]+:.*##/ { \
+			split($$0, parts, ":.*## *"); \
+			printf "  \033[36m%-22s\033[0m %s\n", parts[1], parts[2] \
+		} \
+	' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "Public presets: standard, technical, complete, concise. Photo modes: photo, no-photo."
 	@echo "  pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo"
 	@echo "  pwsh scripts/build-local.ps1 catalan -Style ats -PhotoMode no-photo"
 
-all:
+##@ Build
+
+all: ## Build standard photo CVs in all languages -> dist/
 	$(SCRIPT)
 
-english:
+english: ## Build standard photo English CV -> dist/
 	$(SCRIPT) english
 
-spanish:
+spanish: ## Build standard photo Spanish CV -> dist/
 	$(SCRIPT) spanish
 
-catalan:
+catalan: ## Build standard photo Catalan CV -> dist/
 	$(SCRIPT) catalan
 
-curated:
+##@ Variants & Presets
+
+curated: ## Build all public variants in one container -> dist/
 	$(SCRIPT) -AllCurated -Parallelism $(CURATED_JOBS)
 
-curated-language:
+curated-language: ## Build one language's public variants (use LANGUAGE=spanish)
 	$(SCRIPT) $(LANGUAGE) -AllCurated -Parallelism $(CURATED_JOBS)
 
-curated-preset:
+curated-preset: ## Build one preset in all languages (use PRESET=complete)
 	$(SCRIPT) -AllCurated -OnlyPreset $(PRESET) -Parallelism $(CURATED_JOBS)
 
-ats:
+ats: ## Build the three local-only ATS CVs -> dist/
 	$(SCRIPT) -Style ats -PhotoMode no-photo
 
-check:
+##@ Verification & Quality
+
+check: ## Compile the standard photo CVs in all languages
 	$(SCRIPT) -Check
 
-validate-career:
-	python scripts/validate-career.py
+validate-career: ## Validate the AI tailoring career inventory (YAML schema)
+	$(PYTHON) scripts/validate-career.py
 
-lint:
+test: ## Run unit tests (career inventory validation suite)
+	$(PYTHON) -m unittest discover -s tests
+
+lint: ## Run chktex on the three .tex sources (requires TeX Live)
 	chktex cv_english.tex cv_spanish.tex cv_catalan.tex
 
-clean:
-	pwsh -NoProfile -Command "Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue"
+##@ Setup & Tooling
 
-distclean: clean
-	pwsh -NoProfile -Command "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue"
-
-hooks:
+hooks: ## Enable tracked git hooks (.githooks/ pre-push guard)
 	git config core.hooksPath .githooks
 	@echo "Git hooks enabled from .githooks/ (pre-push guards main/master)."
 
+##@ Cleanup
 
-##@ Understand (knowledge graph)
+clean: ## Remove build/ (auxiliary files, logs, .xdv)
+ifeq ($(OS),Windows_NT)
+	pwsh -NoProfile -Command "Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue"
+else
+	rm -rf build
+endif
 
-.PHONY: understand-dashboard
-understand-dashboard: ## Launch the Understand Anything knowledge-graph dashboard (graph dir = repo root)
-	@node -e "require(require('os').homedir()+'/.understand-anything/repo/understand-anything-plugin/packages/dashboard/launch.cjs')"
+distclean: clean ## Remove build/ and dist/ (also final PDFs)
+ifeq ($(OS),Windows_NT)
+	pwsh -NoProfile -Command "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue"
+else
+	rm -rf dist
+endif
