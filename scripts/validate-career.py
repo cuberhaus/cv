@@ -51,10 +51,18 @@ def validate_date(value: Any, context: str, *, allow_present: bool = False) -> N
         raise CareerValidationError(f"{context} must use YYYY-MM" + (" or present" if allow_present else ""))
 
 
+def validate_date_range(start_date: Any, end_date: Any, context: str, *, allow_present: bool = False) -> None:
+    validate_date(start_date, f"{context}.start_date")
+    validate_date(end_date, f"{context}.end_date", allow_present=allow_present)
+    if end_date != "present" and start_date > end_date:
+        raise CareerValidationError(f"{context}.start_date must not be after end_date")
+
+
 def validate_tagged_record(record: Any, context: str, *, requires_publication: bool = True) -> str:
     data = require_mapping(record, context)
     record_id = require_string(data.get("id"), f"{context}.id")
-    require_list(data.get("tags", []), f"{context}.tags")
+    for index, tag in enumerate(require_list(data.get("tags", []), f"{context}.tags")):
+        require_string(tag, f"{context}.tags[{index}]")
     if requires_publication:
         if not isinstance(data.get("publishable"), bool):
             raise CareerValidationError(f"{context}.publishable must be boolean")
@@ -91,9 +99,11 @@ def validate(document: Any) -> None:
             if collection == "experience":
                 for field in ("organization", "role", "location"):
                     require_string(record_data.get(field), f"{context}.{field}")
-                validate_date(record_data.get("start_date"), f"{context}.start_date")
-                validate_date(record_data.get("end_date"), f"{context}.end_date", allow_present=True)
-                for achievement_index, achievement in enumerate(require_list(record_data.get("achievements"), f"{context}.achievements")):
+                validate_date_range(record_data.get("start_date"), record_data.get("end_date"), context, allow_present=True)
+                achievements = require_list(record_data.get("achievements"), f"{context}.achievements")
+                if not achievements:
+                    raise CareerValidationError(f"{context}.achievements must not be empty")
+                for achievement_index, achievement in enumerate(achievements):
                     achievement_data = require_mapping(achievement, f"{context}.achievements[{achievement_index}]")
                     register_unique_id(
                         achievement_data.get("id"),
@@ -105,14 +115,16 @@ def validate(document: Any) -> None:
             elif collection == "education":
                 for field in ("institution", "qualification", "location"):
                     require_string(record_data.get(field), f"{context}.{field}")
-                validate_date(record_data.get("start_date"), f"{context}.start_date")
-                validate_date(record_data.get("end_date"), f"{context}.end_date")
+                validate_date_range(record_data.get("start_date"), record_data.get("end_date"), context)
             elif collection == "projects":
                 require_string(record_data.get("name"), f"{context}.name")
                 require_string(record_data.get("summary"), f"{context}.summary")
             elif collection == "skills":
                 require_string(record_data.get("category"), f"{context}.category")
-                for item_index, item in enumerate(require_list(record_data.get("items"), f"{context}.items")):
+                items = require_list(record_data.get("items"), f"{context}.items")
+                if not items:
+                    raise CareerValidationError(f"{context}.items must not be empty")
+                for item_index, item in enumerate(items):
                     require_string(item, f"{context}.items[{item_index}]")
             elif collection == "certifications":
                 require_string(record_data.get("name"), f"{context}.name")

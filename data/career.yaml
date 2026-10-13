@@ -106,8 +106,146 @@ skills:
     category: Programming Languages
     items: [Python, TypeScript, JavaScript, C, C++, Java, SQL]
 certifications:
+  - id: nvidia-accelerated-data-science
+    name: "NVIDIA-Certified Professional: Accelerated Data Science"
+    issued_at: 2026-08
+    tags: [nvidia, data-science]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/fed32b85-03ac-48f0-a38d-1952337d2234
+  - id: nvidia-openusd-development
+    name: "NVIDIA Certified Professional: OpenUSD Development"
+    issued_at: 2026-07
+    tags: [nvidia, openusd, physical-ai]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/39035959-608c-491b-929e-38abf4a1617b
+  - id: nvidia-genai-llms-professional
+    name: "NVIDIA Certified Professional: Gen AI LLMs"
+    issued_at: 2026-07
+    tags: [nvidia, genai, llm]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/25e9fe19-83aa-414b-83f4-5ec541119f5a
+  - id: nvidia-agentic-ai
+    name: "NVIDIA Certified Professional: Agentic AI"
+    issued_at: 2026-06
+    tags: [nvidia, agentic-ai, llm]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/b7d106b5-441a-4cb3-853b-0085df2c2912
+  - id: nvidia-genai-multimodal
+    name: "NVIDIA-Certified Associate: Generative AI Multimodal"
+    issued_at: 2026-06
+    tags: [nvidia, genai, multimodal]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/665d0756-3e8a-4e8d-90d7-3a17a50ae620
+  - id: nvidia-genai-llms-associate
+    name: "NVIDIA-Certified Associate: Generative AI LLMs"
+    issued_at: 2026-05
+    tags: [nvidia, genai, llm]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/cd5fe259-304f-42b6-9bd2-9c95657386df
+  - id: nvidia-ai-infrastructure-operations
+    name: "NVIDIA-Certified Associate: AI Infrastructure and Operations"
+    issued_at: 2026-05
+    tags: [nvidia, infrastructure, mlops]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/c63fa8d7-de8e-4518-a27a-eab82f577bba
+  - id: nvidia-aiio-bootcamp
+    name: "NCA-AIIO Bootcamp --- AI Infra & Ops Associate"
+    issued_at: 2026-05
+    tags: [nvidia, infrastructure, mlops]
+    publishable: true
+    evidence:
+      - https://deloittedevelopment.udemy.com/certificate/UC-22115968-5167-4d32-981c-eef77dec000c/
+  - id: nvidia-genl-bootcamp
+    name: "NCA-GENL Bootcamp --- GenAI & LLMs Associate"
+    issued_at: 2026-05
+    tags: [nvidia, genai, llm]
+    publishable: true
+    evidence:
+      - https://deloittedevelopment.udemy.com/certificate/UC-873eab0c-b5db-47eb-bf6d-dc3e5ebbb51c/
+  - id: nvidia-physical-ai-fundamentals
+    name: Nvidia Physical AI Fundamentals (Instructor-Led)
+    issued_at: 2026-02
+    tags: [nvidia, physical-ai]
+    publishable: true
+    evidence:
+      - https://www.virtualbadge.io/certificate-validator?credential=dfd89446-399d-4b0e-9a3f-b1158dd6f202
+  - id: google-generative-ai-leader
+    name: Generative AI Leader Certification
+    issued_at: 2025-07
+    tags: [gcp, genai]
+    publishable: true
+    evidence:
+      - https://www.credly.com/badges/7837d2e7-da88-442d-b66b-f8a68caf3779
+  - id: microsoft-azure-fundamentals-az900
+    name: "Microsoft Certified: Azure Fundamentals (AZ-900)"
+    issued_at: 2025-05
+    tags: [azure, cloud]
+    publishable: true
+    evidence:
+      - https://learn.microsoft.com/api/credentials/share/en-us/CasacubertaGilPol-4021/D3813A9ED6F473
+  - id: stratio-data-fabric-operations
+    name: Stratio Generative AI Data Fabric --- Operations 14.1
+    issued_at: 2025-03
+    tags: [stratio, data-engineering, genai]
+    publishable: true
+    evidence:
+      - https://certificate.stratio.com/user/certificate/3aa56e2ee5536c425ceca705be635041
+  - id: stratio-data-processing
+    name: Stratio Generative AI Data Processing 14.1
+    issued_at: 2025-03
+    tags: [stratio, data-engineering, genai]
+    publishable: true
+    evidence:
+      - https://certificate.stratio.com/user/certificate/f0ea41ec4fbdfa7518290851a10382fe
+  - id: stratio-data-fabric-basics
+    name: Stratio Generative AI Data Fabric Basics 14.1
+    issued_at: 2025-01
+    tags: [stratio, data-engineering, genai]
+    publishable: true
+    evidence:
+      - https://certificate.stratio.com/user/certificate/a4f162421762d5cd35d9f4e66552e4ad
+  - id: nvidia-deep-learning
+    name: Getting Started with Deep Learning
+    issued_at: 2024-09
+    tags: [nvidia, deep-learning]
+    publishable: true
+    evidence:
+      - https://learn.nvidia.com/certificates?id=repLgUwxT--gg5Suw70maA
+  - id: oracle-oci-ai-foundations
+    name: Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate (1Z0-1122-25)
+    issued_at: 2024-04
+    tags: [oracle, cloud, ai]
+    publishable: true
+    evidence:
+      - https://catalog-education.oracle.com/ords/certview/sharebadge?id=DD0D5772371BBE33ABF90101B3D050A1F32460C1883B805FA16656015CF5AB00
+  - id: universal-robots-e-series-pro
+    name: e-Series Pro Track
+    issued_at: 2023-05
+    tags: [robotics]
+    publishable: true
+    evidence: []
+  - id: universal-robots-e-series-application
+    name: e-Series Application Track
+    issued_at: 2023-02
+    tags: [robotics]
+    publishable: true
+    evidence: []
+  - id: universal-robots-e-series-core
+    name: e-Series Core Track
+    issued_at: 2022-10
+    tags: [robotics]
+    publishable: true
+    evidence: []
   - id: cambridge-c1-advanced
     name: Cambridge English C1 Advanced
     issued_at: 2019-01
+    tags: [languages, english]
     publishable: true
     evidence: []

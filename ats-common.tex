@@ -2,24 +2,27 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[left=1.8cm,right=1.8cm,top=1.5cm,bottom=1.5cm]{geometry}
 \usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
-\usepackage[T1]{fontenc}
+\usepackage[hidelinks,bookmarks=false,pdfpagelabels=false]{hyperref}
+\nofiles
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.35em}
 \renewcommand{\familydefault}{\sfdefault}
+\providecommand{\atslocation}{Barcelona, Spain}
 \newcommand{\atsheader}{%
   {\LARGE\textbf{Pol Casacuberta}}\\
   {\large \atsposition}\\
-  Barcelona, Spain \textbar\ +34 671 823 024 \textbar\ \href{mailto:polcg10@gmail.com}{polcg10@gmail.com}\\
+  \atslocation\ \textbar\ +34 671 823 024 \textbar\ \href{mailto:polcg10@gmail.com}{polcg10@gmail.com}\\
   \href{https://polcasacubertagil.com}{polcasacubertagil.com} \textbar\ \href{https://www.linkedin.com/in/polcasacubertagil}{linkedin.com/in/polcasacubertagil} \textbar\ \href{https://github.com/cuberhaus}{github.com/cuberhaus}\\
   \atslanguages\par
 }
-\newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\hrule\vspace{0.25em}}
+\makeatletter
+\newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\nobreak\hrule\vspace{0.25em}\@afterheading}
+\makeatother
 \newenvironment{cvparagraph}{}{\par}
 \newenvironment{cventries}{}{\par}
 \newcommand{\cventry}[5]{%
-  \noindent\textbf{#1} \textbar\ #2 \hfill #4\\
-  \textit{#3}\par #5\vspace{0.35em}
+  \noindent\textbf{#1} \textbar\ #2\\
+  \textit{#3} \hfill #4\par #5\vspace{0.35em}
 }
 \newenvironment{cvitems}{\begin{itemize}[leftmargin=1.4em,itemsep=0.15em,topsep=0.1em]}{\end{itemize}}
 \newenvironment{cvskills}{\begin{description}[leftmargin=3.9cm,labelwidth=3.5cm,itemsep=0.2em]}{\end{description}}

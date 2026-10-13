@@ -15,12 +15,14 @@ SECTIONS = sorted(p.stem for p in CV_DIR.glob("*.tex") if not p.stem.endswith(tu
 def structure(path: Path) -> Counter[str]:
     """Count the CV macros that are live (not commented out) in a section file."""
     text = re.sub(r"(?<!\\)%.*", "", path.read_text(encoding="utf-8"))
-    return Counter(re.findall(r"\\(cvsection|cventry|cvhonor|cvskill|item)\b", text))
+    return Counter(re.findall(r"\\(?:cvsection|cventry|cvhonor|cvskill|item|textbf)\b|\\\\", text))
 
 
 class SectionParityTests(unittest.TestCase):
     def test_sections_are_discovered(self) -> None:
         self.assertGreaterEqual(len(SECTIONS), 7)
+        expected_files = {f"{s}{sfx}.tex" for s in SECTIONS for sfx in ("", *SUFFIXES.values())}
+        self.assertEqual({p.name for p in CV_DIR.glob("*.tex")}, expected_files)
 
     def test_sections_have_the_same_structure_in_every_language(self) -> None:
         for section in SECTIONS:
