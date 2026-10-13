@@ -95,20 +95,22 @@ class BuildLocalTests(unittest.TestCase):
         )
 
     def test_ats_style_builds_the_photo_free_variant(self) -> None:
-        self.assertEqual(self.build("catalan", "--style", "ats", "--photo-mode", "no-photo").returncode, 0)
+        self.assertEqual(self.build("catalan", "--style", "ats").returncode, 0)
         self.assertEqual(self.built(), {"ats_catalan_standard.pdf"})
         self.assertEqual(self.jobs(), [["ats_catalan", "ats_catalan_standard", "0111", "0"]])
 
     def test_invalid_arguments_fail_before_docker_runs(self) -> None:
         invalid = (
+            ("english", "spanish"),
             ("--preset", "bogus"),
             ("--preset", ""),
             ("--only-preset", "--parallelism", "4"),
             ("--only-preset", "concise"),
             ("--include-ats",),
             ("--all-curated", "--preset", "concise"),
+            ("--all-curated", "--photo-mode", "no-photo"),
             ("--parallelism", "99"),
-            ("--style", "ats"),  # ATS is photo-free and the default photo mode is "photo"
+            ("--style", "ats", "--photo-mode", "photo"),
             ("--all-curated", "--style", "ats", "--photo-mode", "no-photo"),
             ("--nope",),
         )

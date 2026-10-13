@@ -37,6 +37,9 @@ experience:
       - id: cloud-ai-infrastructure
         text: Designed and deployed edge inference, streaming pipelines, cloud-hosted training, and model serving across AWS, Azure, and GCP.
         metrics: {}
+      - id: generalitat-data-governance
+        text: Contributed to a Generalitat de Catalunya data-governance initiative covering Informatica cataloguing, data lineage, and client-facing consulting.
+        metrics: {}
   - id: mgs-ai-engineer
     organization: MGS, Seguros y Reaseguros S.A.
     role: AI Engineer
@@ -56,6 +59,25 @@ experience:
         metrics: {}
       - id: geospatial-analysis
         text: Developed geospatial analysis projects in R and RStudio using map data for location-based business insights.
+        metrics: {}
+      - id: insurance-data-analysis
+        text: Collected, cleaned, and analyzed data from diverse sources in collaboration with business teams.
+        metrics: {}
+  - id: superprof-private-tutor
+    organization: Superprof
+    role: Private Tutor (Freelance)
+    location: Barcelona, Catalonia, Spain
+    start_date: 2023-03
+    end_date: present
+    tags: [teaching, mentoring, programming, mathematics, physics]
+    publishable: true
+    evidence: []
+    achievements:
+      - id: superprof-technical-mentoring
+        text: Held the "Super Professor" distinction on Superprof, mentoring engineers, business professionals, and programming beginners on technical problem-solving.
+        metrics: {}
+      - id: superprof-stem-tutoring
+        text: Delivered personalized instruction in mathematics, physics, and computer programming to middle and high school students.
         metrics: {}
 education:
   - id: fib-computer-science-engineering
@@ -89,6 +111,20 @@ projects:
     publishable: true
     evidence: []
     summary: Health-tracking application with an LLM chatbot and computer-vision image analysis.
+  - id: bitsxlamarato-2022-aneurysm-detector
+    name: Abdominal Aortic Aneurysm Detector
+    context: "#bitsxlaMarató TV3 Hackathon 2022 winner"
+    tags: [computer-vision, mask-rcnn, medical-imaging, 3d-visualization, hackathon]
+    publishable: true
+    evidence: []
+    summary: Mask R-CNN detector that identifies abdominal aortic aneurysms from ultrasound video, reconstructs a 3D aorta model to measure the widest cross-section, and provides an interactive GUI; won the cardiovascular health challenge.
+  - id: linux-config-automation
+    name: Linux Configuration Automation and Documentation
+    context: Open-source contributor
+    tags: [linux, shell-scripting, automation, stow, rclone, git, markdown, latex]
+    publishable: true
+    evidence: []
+    summary: Shell scripting and task automation across Linux environments using GNU Stow, Rclone, and Git, paired with Markdown and LaTeX technical documentation.
 skills:
   - id: ai-ml
     category: AI & ML
@@ -156,14 +192,14 @@ certifications:
     evidence:
       - https://www.credly.com/badges/c63fa8d7-de8e-4518-a27a-eab82f577bba
   - id: nvidia-aiio-bootcamp
-    name: "NCA-AIIO Bootcamp --- AI Infra & Ops Associate"
+    name: "NCA-AIIO Bootcamp — AI Infra & Ops Associate"
     issued_at: 2026-05
     tags: [nvidia, infrastructure, mlops]
     publishable: true
     evidence:
       - https://deloittedevelopment.udemy.com/certificate/UC-22115968-5167-4d32-981c-eef77dec000c/
   - id: nvidia-genl-bootcamp
-    name: "NCA-GENL Bootcamp --- GenAI & LLMs Associate"
+    name: "NCA-GENL Bootcamp — GenAI & LLMs Associate"
     issued_at: 2026-05
     tags: [nvidia, genai, llm]
     publishable: true
@@ -191,7 +227,7 @@ certifications:
     evidence:
       - https://learn.microsoft.com/api/credentials/share/en-us/CasacubertaGilPol-4021/D3813A9ED6F473
   - id: stratio-data-fabric-operations
-    name: Stratio Generative AI Data Fabric --- Operations 14.1
+    name: Stratio Generative AI Data Fabric — Operations 14.1
     issued_at: 2025-03
     tags: [stratio, data-engineering, genai]
     publishable: true
@@ -241,6 +277,12 @@ certifications:
     name: e-Series Core Track
     issued_at: 2022-10
     tags: [robotics]
+    publishable: true
+    evidence: []
+  - id: udemy-web-developer-bootcamp
+    name: The Web Developer Bootcamp
+    issued_at: 2021-08
+    tags: [web-development, javascript, html, css]
     publishable: true
     evidence: []
   - id: cambridge-c1-advanced

@@ -67,6 +67,34 @@ class ValidateCareerTests(unittest.TestCase):
         with self.assertRaisesRegex(validate_career.CareerValidationError, "role"):
             validate_career.validate(invalid_inventory)
 
+    def test_non_kebab_case_ids_are_rejected(self) -> None:
+        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory["projects"][0]["id"] = "Invalid_ID"
+
+        with self.assertRaisesRegex(validate_career.CareerValidationError, "kebab-case"):
+            validate_career.validate(invalid_inventory)
+
+    def test_invalid_evidence_urls_and_missing_fields_are_rejected(self) -> None:
+        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory["projects"][0]["evidence"] = ["https://"]
+        with self.assertRaisesRegex(validate_career.CareerValidationError, "https URL"):
+            validate_career.validate(invalid_inventory)
+
+        missing_tags = deepcopy(self.inventory)
+        missing_tags["projects"][0].pop("tags")
+        with self.assertRaisesRegex(validate_career.CareerValidationError, r"projects\[0\]\.tags"):
+            validate_career.validate(missing_tags)
+
+        empty_context = deepcopy(self.inventory)
+        empty_context["projects"][0]["context"] = ""
+        with self.assertRaisesRegex(validate_career.CareerValidationError, r"projects\[0\]\.context"):
+            validate_career.validate(empty_context)
+
+        latex_dash = deepcopy(self.inventory)
+        latex_dash["certifications"][0]["name"] = "Cert --- Name"
+        with self.assertRaisesRegex(validate_career.CareerValidationError, "LaTeX"):
+            validate_career.validate(latex_dash)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,7 +16,7 @@
   \atslanguages\par
 }
 \makeatletter
-\newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\nobreak\hrule\vspace{0.25em}\@afterheading}
+\newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\nobreak\hrule\nobreak\vspace{0.25em}\@afterheading}
 \makeatother
 \newenvironment{cvparagraph}{}{\par}
 \newenvironment{cventries}{}{\par}
@@ -28,7 +28,7 @@
 \newenvironment{cvskills}{\begin{description}[leftmargin=3.9cm,labelwidth=3.5cm,itemsep=0.2em]}{\end{description}}
 \newcommand{\cvskill}[2]{\item[\textbf{#1}] #2}
 \newenvironment{cvhonors}{\begin{itemize}[leftmargin=1.4em,itemsep=0.15em,topsep=0.1em]}{\end{itemize}}
-\newcommand{\cvhonor}[4]{\item \textbf{#1}, #2 \hfill #4}
+\newcommand{\cvhonor}[4]{\item \textbf{#1}, #2\ifx&#3&\else, \textit{#3}\fi \hfill #4}
 
 \begin{document}
 \atsheader
