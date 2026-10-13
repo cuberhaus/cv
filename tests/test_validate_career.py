@@ -17,21 +17,27 @@ SPEC.loader.exec_module(validate_career)
 
 
 class ValidateCareerTests(unittest.TestCase):
+    raw_inventory: dict[str, object]
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.raw_inventory = yaml.safe_load((ROOT / "data" / "career.yaml").read_text(encoding="utf-8"))
+
     def setUp(self) -> None:
-        self.inventory = yaml.safe_load((ROOT / "data" / "career.yaml").read_text(encoding="utf-8"))
+        self.inventory = deepcopy(self.raw_inventory)
 
     def test_current_inventory_is_valid(self) -> None:
-        validate_career.validate(self.inventory)
+        validate_career.load_and_validate()
 
     def test_duplicate_record_ids_are_rejected(self) -> None:
-        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory = self.inventory
         invalid_inventory["projects"][0]["id"] = invalid_inventory["experience"][0]["id"]
 
         with self.assertRaisesRegex(validate_career.CareerValidationError, "duplicate id"):
             validate_career.validate(invalid_inventory)
 
     def test_duplicate_achievement_ids_are_rejected(self) -> None:
-        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory = self.inventory
         invalid_inventory["experience"][1]["achievements"][0]["id"] = (
             invalid_inventory["experience"][0]["achievements"][0]["id"]
         )
@@ -40,25 +46,31 @@ class ValidateCareerTests(unittest.TestCase):
             validate_career.validate(invalid_inventory)
 
     def test_invalid_dates_are_rejected(self) -> None:
-        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory = self.inventory
         invalid_inventory["education"][0]["start_date"] = "2023"
 
         with self.assertRaisesRegex(validate_career.CareerValidationError, "YYYY-MM"):
             validate_career.validate(invalid_inventory)
 
     def test_reversed_date_ranges_are_rejected(self) -> None:
-        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory = self.inventory
         invalid_inventory["education"][0]["start_date"] = "2024-01"
 
         with self.assertRaisesRegex(validate_career.CareerValidationError, "start_date must not be after end_date"):
             validate_career.validate(invalid_inventory)
 
     def test_invalid_tags_are_rejected(self) -> None:
-        invalid_inventory = deepcopy(self.inventory)
-        invalid_inventory["projects"][0]["tags"] = [""]
+        empty_tags = deepcopy(self.inventory)
+        empty_tags["projects"][0]["tags"] = []
+
+        with self.assertRaisesRegex(validate_career.CareerValidationError, r"projects\[0\]\.tags must not be empty"):
+            validate_career.validate(empty_tags)
+
+        blank_tag = deepcopy(self.inventory)
+        blank_tag["projects"][0]["tags"] = [""]
 
         with self.assertRaisesRegex(validate_career.CareerValidationError, r"projects\[0\]\.tags\[0\]"):
-            validate_career.validate(invalid_inventory)
+            validate_career.validate(blank_tag)
 
     def test_missing_localized_facts_are_rejected(self) -> None:
         invalid_inventory = deepcopy(self.inventory)

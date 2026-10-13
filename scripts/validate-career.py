@@ -70,7 +70,10 @@ def validate_tagged_record(
     data = require_mapping(record, context)
     register_unique_id(data.get("id"), f"{context}.id", seen_ids)
     tags_raw = data.get("tags") if requires_publication else data.get("tags", [])
-    for index, tag in enumerate(require_list(tags_raw, f"{context}.tags")):
+    tags = require_list(tags_raw, f"{context}.tags")
+    if requires_publication and not tags:
+        raise CareerValidationError(f"{context}.tags must not be empty")
+    for index, tag in enumerate(tags):
         require_string(tag, f"{context}.tags[{index}]")
     if requires_publication:
         if not isinstance(data.get("publishable"), bool):
