@@ -1,0 +1,16 @@
+% Section order and toggles shared by the Awesome-CV and ATS styles, so adding
+% a section means editing this one file (plus its three cv/<name>*.tex files).
+% Values: 1 = include, 0 = exclude. summary, education and experience are always
+% included. scripts/build-local.sh overrides the toggles per variant.
+\providecommand{\incskills}{1}
+\providecommand{\incprojects}{1}
+\providecommand{\incextracurricular}{1}
+\providecommand{\inccertifications}{0}
+
+\input{cv/summary\cvsfx}
+\input{cv/education\cvsfx}
+\ifnum\incskills=1 \input{cv/skills\cvsfx}\fi
+\input{cv/experience\cvsfx}
+\ifnum\incprojects=1 \input{cv/projects\cvsfx}\fi
+\ifnum\incextracurricular=1 \input{cv/extracurricular\cvsfx}\fi
+\ifnum\inccertifications=1 \input{cv/certifications\cvsfx}\fi

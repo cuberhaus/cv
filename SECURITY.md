@@ -20,4 +20,4 @@ This repository contains LaTeX sources for a multilingual CV (English, Spanish, 
 
 ### Local builds
 
-- The `make` targets invoke `scripts/build-local.ps1`, which runs `latexmk` against local sources only. No network access required at build time.
+- The `make` targets invoke `scripts/build-local.sh`, which runs `latexmk` against local sources only. No network access required at build time.

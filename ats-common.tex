@@ -7,18 +7,12 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.35em}
 \renewcommand{\familydefault}{\sfdefault}
-\IfFileExists{build/flags.tex}{\input{build/flags}}{}
-\providecommand{\incskills}{1}
-\providecommand{\incprojects}{1}
-\providecommand{\incextracurricular}{1}
-\providecommand{\inccertifications}{0}
-
-\newcommand{\atsheader}[3]{%
+\newcommand{\atsheader}{%
   {\LARGE\textbf{Pol Casacuberta}}\\
-  {\large #1}\\
+  {\large \atsposition}\\
   Barcelona, Spain \textbar\ +34 671 823 024 \textbar\ \href{mailto:polcg10@gmail.com}{polcg10@gmail.com}\\
   \href{https://polcasacubertagil.com}{polcasacubertagil.com} \textbar\ \href{https://www.linkedin.com/in/polcasacubertagil}{linkedin.com/in/polcasacubertagil} \textbar\ \href{https://github.com/cuberhaus}{github.com/cuberhaus}\\
-  #2 \textbar\ #3\par
+  \atslanguages\par
 }
 \newcommand{\cvsection}[1]{\vspace{0.7em}\noindent\textbf{\large #1}\par\hrule\vspace{0.25em}}
 \newenvironment{cvparagraph}{}{\par}
@@ -32,3 +26,8 @@
 \newcommand{\cvskill}[2]{\item[\textbf{#1}] #2}
 \newenvironment{cvhonors}{\begin{itemize}[leftmargin=1.4em,itemsep=0.15em,topsep=0.1em]}{\end{itemize}}
 \newcommand{\cvhonor}[4]{\item \textbf{#1}, #2 \hfill #4}
+
+\begin{document}
+\atsheader
+\input{sections-common}
+\end{document}

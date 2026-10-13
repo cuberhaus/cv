@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Compile public and ATS ${{ matrix.cv }} CVs
-        run: pwsh -NoProfile -File scripts/build-local.ps1 ${{ matrix.cv }} -AllCurated -IncludeAts -Parallelism 2
+        run: bash scripts/build-local.sh ${{ matrix.cv }} --all-curated --include-ats --parallelism 2
 
       - name: Upload public ${{ matrix.cv }} PDFs
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -41,10 +41,22 @@ jobs:
           name: cv-${{ matrix.cv }}
           path: dist/cv_${{ matrix.cv }}*.pdf
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Career inventory tests
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -r requirements-dev.txt
+          make test PYTHON=.venv/bin/python
+
   publish:
     # Releases + portfolio dispatch only on merges to main (PR from develop).
-    # Pushes to develop and PR events only run `build` above for validation.
-    needs: build
+    # Pushes to develop and PR events only run `build` and `test` above for validation.
+    needs: [build, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
