@@ -9,11 +9,14 @@ Built on the [Awesome-CV](https://github.com/posquit0/Awesome-CV) template
 
 ```text
 .
-├── awesome-cv.cls       # upstream template class
-├── cv_english.tex       # English entry point
+├── awesome-cv.cls       # upstream template class, trimmed to what the CV uses
+├── cv-common.tex        # shared Awesome-CV layout and personal details
+├── cv_english.tex       # English entry point (language strings only)
 ├── cv_spanish.tex       # Spanish entry point
 ├── cv_catalan.tex       # Catalan entry point
-├── ats_*.tex            # local-only ATS-first alternate style
+├── sections-common.tex  # section order and toggles shared by both styles
+├── ats-common.tex       # shared local-only ATS-first layout
+├── ats_*.tex            # ATS entry points (language strings only)
 ├── cv/                  # shared sections: base, *_es.tex, *_ca.tex
 │   ├── summary.tex / summary_es.tex / summary_ca.tex
 │   ├── education.tex / education_es.tex / education_ca.tex
@@ -41,7 +44,6 @@ make curated   # 24 public assets, built in one container with 4 parallel jobs
 make curated-language LANGUAGE=spanish
 make curated-preset PRESET=complete
 make ats       # three local-only ATS-first PDFs
-make check     # compile standard, photo-enabled PDFs (no page-count limit)
 make validate-career
 ```
 
@@ -60,8 +62,10 @@ CI uses three language-level jobs. Each starts one TeX container to build that
 language's eight public PDFs and its unpublished ATS validation with two
 bounded parallel compiles.
 
-`make check` verifies compilation and intentionally does not reject multi-page
-CVs.
+Page count is intentionally not enforced; multi-page CVs are valid.
+
+`make test` runs the career-inventory unit tests; CI runs it in a `test` job
+that gates publishing.
 
 ## Editing
 
@@ -82,11 +86,11 @@ Awesome-CV remains the canonical public style. The ATS-first files demonstrate
 how to add an optional local/CI style without copying career content:
 
 1. Add one shared style file, such as `newstyle-common.tex`, containing only
-   layout and typography.
-2. Add English, Spanish, and Catalan entry points that load the shared style and
-   the existing localized files under `cv/`.
+   layout and typography, and ending with `\input{sections-common}`.
+2. Add English, Spanish, and Catalan entry points that define `\cvsfx` (the
+   `cv/` file suffix) and any style-specific strings, then input the shared style.
 3. Extend the `-Style` validation and source-name mapping in
-   `scripts/build-local.ps1`, then expose an explicit Make target.
+   `scripts/build-local.sh`, then expose an explicit Make target.
 4. Add CI compilation for all three languages. Keep the style out of release
    upload patterns and PersonalPortfolio unless a separate release-contract
    change explicitly makes it public.
