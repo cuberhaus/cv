@@ -33,14 +33,17 @@ presets=(standard technical complete concise)
 die() { echo "error: $*" >&2; exit 1; }
 opt_val() { [[ $# -ge 2 && -n $2 && $2 != -* ]] || die "$1 needs a value"; printf '%s' "$2"; }
 
-target=all preset=standard preset_set=0 photo_mode=photo style=awesome
+target=all target_set=0 preset=standard preset_set=0 photo_mode=photo photo_set=0 style=awesome
 all_curated=0 include_ats=0 only_preset='' parallelism=4
 
 while (($#)); do
     case $1 in
-        all | english | spanish | catalan) target=$1 ;;
+        all | english | spanish | catalan)
+            ((target_set)) && die "multiple targets specified: $target and $1"
+            target=$1 target_set=1
+            ;;
         --preset) preset=$(opt_val "$@"); preset_set=1; shift ;;
-        --photo-mode) photo_mode=$(opt_val "$@"); shift ;;
+        --photo-mode) photo_mode=$(opt_val "$@"); photo_set=1; shift ;;
         --style) style=$(opt_val "$@"); shift ;;
         --only-preset) only_preset=$(opt_val "$@"); shift ;;
         --parallelism) parallelism=$(opt_val "$@"); shift ;;
@@ -52,6 +55,8 @@ while (($#)); do
     shift
 done
 
+[[ $style == ats ]] && ((!photo_set)) && photo_mode=no-photo
+
 [[ -n $preset && -n ${preset_bits[$preset]:-} ]] || die "unknown preset: $preset"
 [[ -z $only_preset || -n ${preset_bits[$only_preset]:-} ]] || die "unknown preset: $only_preset"
 [[ $photo_mode == photo || $photo_mode == no-photo ]] || die "unknown photo mode: $photo_mode"
@@ -62,6 +67,9 @@ if ((all_curated)) && [[ $style != awesome ]]; then
 fi
 if ((all_curated)) && ((preset_set)); then
     die '--preset cannot be combined with --all-curated; use --only-preset.'
+fi
+if ((all_curated)) && ((photo_set)); then
+    die '--photo-mode cannot be combined with --all-curated.'
 fi
 if ((!all_curated)) && [[ -n $only_preset ]]; then
     die '--only-preset requires --all-curated.'

@@ -15,7 +15,7 @@ This repository contains LaTeX sources for a multilingual CV (English, Spanish, 
 
 ### GitHub Actions
 
-- The workflow uses pinned third-party actions. Dependabot ([.github/dependabot.yml](.github/dependabot.yml)) keeps these current with weekly PRs.
+- The workflow uses commit-pinned third-party actions. Grouped Dependabot configuration lives in [.github/dependabot.yml](.github/dependabot.yml) (automatic version-update PRs are currently paused via `open-pull-requests-limit: 0`).
 - Do not enable any workflow trigger that runs third-party code from forks against this account's secrets (no `pull_request_target` with checkout of fork code).
 
 ### Local builds

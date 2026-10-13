@@ -11,6 +11,8 @@ import yaml
 
 INVENTORY_PATH = Path(__file__).resolve().parents[1] / "data" / "career.yaml"
 DATE_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+HTTPS_URL_PATTERN = re.compile(r"^https://\S+$")
 REQUIRED_COLLECTIONS = ("experience", "education", "projects", "skills", "certifications")
 
 
@@ -27,6 +29,8 @@ def require_mapping(value: Any, context: str) -> dict[str, Any]:
 def require_string(value: Any, context: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise CareerValidationError(f"{context} must be a non-empty string")
+    if "---" in value:
+        raise CareerValidationError(f"{context} must not contain raw LaTeX '---' markup")
     return value
 
 
@@ -38,6 +42,8 @@ def require_list(value: Any, context: str) -> list[Any]:
 
 def register_unique_id(value: Any, context: str, seen_ids: set[str]) -> str:
     record_id = require_string(value, context)
+    if not ID_PATTERN.fullmatch(record_id):
+        raise CareerValidationError(f"{context} must be lowercase kebab-case")
     if record_id in seen_ids:
         raise CareerValidationError(f"duplicate id: {record_id}")
     seen_ids.add(record_id)
@@ -58,19 +64,24 @@ def validate_date_range(start_date: Any, end_date: Any, context: str, *, allow_p
         raise CareerValidationError(f"{context}.start_date must not be after end_date")
 
 
-def validate_tagged_record(record: Any, context: str, *, requires_publication: bool = True) -> str:
+def validate_tagged_record(
+    record: Any, context: str, seen_ids: set[str], *, requires_publication: bool = True
+) -> dict[str, Any]:
     data = require_mapping(record, context)
-    record_id = require_string(data.get("id"), f"{context}.id")
-    for index, tag in enumerate(require_list(data.get("tags", []), f"{context}.tags")):
+    register_unique_id(data.get("id"), f"{context}.id", seen_ids)
+    tags_raw = data.get("tags") if requires_publication else data.get("tags", [])
+    tags = require_list(tags_raw, f"{context}.tags")
+    if requires_publication and not tags:
+        raise CareerValidationError(f"{context}.tags must not be empty")
+    for index, tag in enumerate(tags):
         require_string(tag, f"{context}.tags[{index}]")
     if requires_publication:
         if not isinstance(data.get("publishable"), bool):
             raise CareerValidationError(f"{context}.publishable must be boolean")
-        evidence = require_list(data.get("evidence", []), f"{context}.evidence")
-        for index, url in enumerate(evidence):
-            if not isinstance(url, str) or not url.startswith("https://"):
+        for index, url in enumerate(require_list(data.get("evidence"), f"{context}.evidence")):
+            if not isinstance(url, str) or not HTTPS_URL_PATTERN.fullmatch(url):
                 raise CareerValidationError(f"{context}.evidence[{index}] must be an https URL")
-    return record_id
+    return data
 
 
 def validate(document: Any) -> None:
@@ -92,10 +103,9 @@ def validate(document: Any) -> None:
     for collection in REQUIRED_COLLECTIONS:
         for index, record in enumerate(require_list(data.get(collection), collection)):
             context = f"{collection}[{index}]"
-            record_id = validate_tagged_record(record, context, requires_publication=collection != "skills")
-            register_unique_id(record_id, f"{context}.id", seen_ids)
-
-            record_data = require_mapping(record, context)
+            record_data = validate_tagged_record(
+                record, context, seen_ids, requires_publication=collection != "skills"
+            )
             if collection == "experience":
                 for field in ("organization", "role", "location"):
                     require_string(record_data.get(field), f"{context}.{field}")
@@ -119,6 +129,8 @@ def validate(document: Any) -> None:
             elif collection == "projects":
                 require_string(record_data.get("name"), f"{context}.name")
                 require_string(record_data.get("summary"), f"{context}.summary")
+                if "context" in record_data:
+                    require_string(record_data.get("context"), f"{context}.context")
             elif collection == "skills":
                 require_string(record_data.get("category"), f"{context}.category")
                 items = require_list(record_data.get("items"), f"{context}.items")

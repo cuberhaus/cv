@@ -24,9 +24,10 @@ The top-level fields are:
 - `skills`: grouped technologies and capabilities.
 - `certifications`: externally issued credentials.
 
-Every collection record has an `id` and `tags`. Records other than skills also
-have:
+Every collection record has a globally unique `id`. Records other than skills
+also have:
 
+- `tags`: non-empty topic tags used to match role requirements.
 - `publishable`: whether the fact may be proposed for public CV content.
 - `evidence`: zero or more public HTTPS sources supporting the fact.
 

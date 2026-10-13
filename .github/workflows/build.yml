@@ -101,7 +101,7 @@ jobs:
           `concise` (skills). Photo modes: `photo`, `no-photo`.
           EOF
           gh release delete "${{ steps.tag.outputs.tag }}" --yes --cleanup-tag || true
-          gh release create "${{ steps.tag.outputs.tag }}" cv_*.pdf \
+          gh release create "${{ steps.tag.outputs.tag }}" cv_*.pdf --target "${{ github.sha }}" \
             --title "CV ${{ steps.tag.outputs.date }} (${{ steps.tag.outputs.short_sha }})" \
             --notes-file release-notes.md --latest=false
 
