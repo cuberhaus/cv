@@ -62,7 +62,7 @@ ats: ## Build the three local-only ATS CVs -> dist/
 validate-career: ## Validate the AI tailoring career inventory (YAML schema)
 	$(PYTHON) scripts/validate-career.py
 
-test: ## Run unit tests (career inventory validation suite)
+test: ## Run unit tests (career inventory, section parity, build script)
 	$(PYTHON) -m unittest discover -s tests
 
 ##@ Setup & Tooling

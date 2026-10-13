@@ -64,8 +64,9 @@ bounded parallel compiles.
 
 Page count is intentionally not enforced; multi-page CVs are valid.
 
-`make test` runs the career-inventory unit tests; CI runs it in a `test` job
-that gates publishing.
+`make test` runs the unit tests (career inventory, section parity across the
+three languages, and the build script's options against a fake `docker`); CI
+runs it in a `test` job that gates publishing.
 
 ## Editing
 

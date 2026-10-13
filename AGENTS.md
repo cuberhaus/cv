@@ -15,7 +15,7 @@ Multilingual LaTeX CV (English, Spanish, Catalan) for Pol Casacuberta, built on 
 
 - `make all` builds all three standard photo PDFs into `dist/` via `scripts/build-local.sh` (bash, XeLaTeX, Docker); `make curated` builds 24 public assets and `make ats` builds local-only ATS PDFs. CI runs three language jobs, each building its eight public variants and ATS validation in one TeX container.
 - `make english` / `make spanish` / `make catalan` build one language; `make clean` / `make distclean` remove `build/` and `dist/`.
-- `make test` runs the career-inventory unit tests; CI runs it in a `test` job that `publish` depends on. Valid CVs may be multi-page; there is no page-count check.
+- `make test` runs the unit tests (career inventory, EN/ES/CA section parity, and `scripts/build-local.sh` against a fake `docker`); CI runs it in a `test` job that `publish` depends on. The parity test counts live `\cvsection`/`\cventry`/`\cvhonor`/`\cvskill`/`\item` per `cv/*.tex` file, so an edit to one language that is missing from the others fails it. Valid CVs may be multi-page; there is no page-count check.
 - **Variants**: `scripts/build-local.sh english --preset technical --photo-mode no-photo`; `--all-curated` builds every public preset/photo asset and `--include-ats` adds local-only ATS validation to that same container. Every build runs in one container, and each variant gets its own `-jobname` so aux files stay isolated.
 - CI matrix-builds **24 public variants** (3 languages x 4 presets x 2 photo modes) and validates the three local-only ATS PDFs. On push to `main` it publishes a dated archive release and retags `latest` with **27 PDFs** (24 assets plus 3 `cv_<lang>.pdf` aliases for `standard_photo`).
 

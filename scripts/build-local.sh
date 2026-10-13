@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Build CV PDFs locally using the same TeX Live Docker image CI uses.
 # Every build runs in one container; aux files go to ./build/ and the final
-# PDFs are copied to ./dist/.
+# PDFs are copied to ./dist/. Needs bash 4+ (associative array), so not the
+# macOS system bash 3.2.
 #
 # Usage: scripts/build-local.sh [all|english|spanish|catalan] [options]
 #   --preset NAME         standard (default) | technical | complete | concise
