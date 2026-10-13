@@ -49,9 +49,11 @@ curated: ## Build all public variants in one container -> dist/
 	$(SCRIPT) --all-curated --parallelism $(CURATED_JOBS)
 
 curated-language: ## Build one language's public variants (use LANGUAGE=spanish)
+	$(if $(LANGUAGE),,$(error Set LANGUAGE=english|spanish|catalan))
 	$(SCRIPT) $(LANGUAGE) --all-curated --parallelism $(CURATED_JOBS)
 
 curated-preset: ## Build one preset in all languages (use PRESET=complete)
+	$(if $(PRESET),,$(error Set PRESET=standard|technical|complete|concise))
 	$(SCRIPT) --all-curated --only-preset $(PRESET) --parallelism $(CURATED_JOBS)
 
 ats: ## Build the three local-only ATS CVs -> dist/

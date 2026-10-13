@@ -46,6 +46,20 @@ class ValidateCareerTests(unittest.TestCase):
         with self.assertRaisesRegex(validate_career.CareerValidationError, "YYYY-MM"):
             validate_career.validate(invalid_inventory)
 
+    def test_reversed_date_ranges_are_rejected(self) -> None:
+        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory["education"][0]["start_date"] = "2024-01"
+
+        with self.assertRaisesRegex(validate_career.CareerValidationError, "start_date must not be after end_date"):
+            validate_career.validate(invalid_inventory)
+
+    def test_invalid_tags_are_rejected(self) -> None:
+        invalid_inventory = deepcopy(self.inventory)
+        invalid_inventory["projects"][0]["tags"] = [""]
+
+        with self.assertRaisesRegex(validate_career.CareerValidationError, r"projects\[0\]\.tags\[0\]"):
+            validate_career.validate(invalid_inventory)
+
     def test_missing_localized_facts_are_rejected(self) -> None:
         invalid_inventory = deepcopy(self.inventory)
         invalid_inventory["experience"][0].pop("role")

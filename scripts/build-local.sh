@@ -31,18 +31,19 @@ declare -A preset_bits=([standard]=0111 [technical]=0011 [complete]=1111 [concis
 presets=(standard technical complete concise)
 
 die() { echo "error: $*" >&2; exit 1; }
+opt_val() { [[ $# -ge 2 && -n $2 && $2 != -* ]] || die "$1 needs a value"; printf '%s' "$2"; }
 
-target=all preset=standard photo_mode=photo style=awesome
+target=all preset=standard preset_set=0 photo_mode=photo style=awesome
 all_curated=0 include_ats=0 only_preset='' parallelism=4
 
 while (($#)); do
     case $1 in
         all | english | spanish | catalan) target=$1 ;;
-        --preset) preset=${2:?--preset needs a value}; shift ;;
-        --photo-mode) photo_mode=${2:?--photo-mode needs a value}; shift ;;
-        --style) style=${2:?--style needs a value}; shift ;;
-        --only-preset) only_preset=${2:?--only-preset needs a value}; shift ;;
-        --parallelism) parallelism=${2:?--parallelism needs a value}; shift ;;
+        --preset) preset=$(opt_val "$@"); preset_set=1; shift ;;
+        --photo-mode) photo_mode=$(opt_val "$@"); shift ;;
+        --style) style=$(opt_val "$@"); shift ;;
+        --only-preset) only_preset=$(opt_val "$@"); shift ;;
+        --parallelism) parallelism=$(opt_val "$@"); shift ;;
         --all-curated) all_curated=1 ;;
         --include-ats) include_ats=1 ;;
         -h | --help) sed -n '2,/^$/p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -51,13 +52,22 @@ while (($#)); do
     shift
 done
 
-[[ -n ${preset_bits[$preset]:-} ]] || die "unknown preset: $preset"
+[[ -n $preset && -n ${preset_bits[$preset]:-} ]] || die "unknown preset: $preset"
 [[ -z $only_preset || -n ${preset_bits[$only_preset]:-} ]] || die "unknown preset: $only_preset"
 [[ $photo_mode == photo || $photo_mode == no-photo ]] || die "unknown photo mode: $photo_mode"
 [[ $style == awesome || $style == ats ]] || die "unknown style: $style"
 [[ $parallelism =~ ^([1-9]|1[0-6])$ ]] || die "--parallelism must be 1-16"
 if ((all_curated)) && [[ $style != awesome ]]; then
     die '--all-curated only builds public Awesome-CV release assets.'
+fi
+if ((all_curated)) && ((preset_set)); then
+    die '--preset cannot be combined with --all-curated; use --only-preset.'
+fi
+if ((!all_curated)) && [[ -n $only_preset ]]; then
+    die '--only-preset requires --all-curated.'
+fi
+if ((!all_curated)) && ((include_ats)); then
+    die '--include-ats requires --all-curated.'
 fi
 if [[ $style == ats && $photo_mode != no-photo ]]; then
     die 'The ATS style is intentionally photo-free; use --photo-mode no-photo.'

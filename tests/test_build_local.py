@@ -102,6 +102,11 @@ class BuildLocalTests(unittest.TestCase):
     def test_invalid_arguments_fail_before_docker_runs(self) -> None:
         invalid = (
             ("--preset", "bogus"),
+            ("--preset", ""),
+            ("--only-preset", "--parallelism", "4"),
+            ("--only-preset", "concise"),
+            ("--include-ats",),
+            ("--all-curated", "--preset", "concise"),
             ("--parallelism", "99"),
             ("--style", "ats"),  # ATS is photo-free and the default photo mode is "photo"
             ("--all-curated", "--style", "ats", "--photo-mode", "no-photo"),
