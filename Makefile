@@ -1,4 +1,4 @@
-SCRIPT ?= pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-local.ps1
+SCRIPT ?= bash scripts/build-local.sh
 CURATED_JOBS ?= 4
 
 ifeq ($(OS),Windows_NT)
@@ -11,7 +11,7 @@ endif
 
 .PHONY: help all english spanish catalan \
         curated curated-language curated-preset ats \
-        check validate-career test lint \
+        validate-career test \
         hooks clean distclean
 
 ##@ General
@@ -26,8 +26,8 @@ help: ## Show this help message
 	' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "Public presets: standard, technical, complete, concise. Photo modes: photo, no-photo."
-	@echo "  pwsh scripts/build-local.ps1 english -Preset technical -PhotoMode no-photo"
-	@echo "  pwsh scripts/build-local.ps1 catalan -Style ats -PhotoMode no-photo"
+	@echo "  scripts/build-local.sh english --preset technical --photo-mode no-photo"
+	@echo "  scripts/build-local.sh catalan --style ats --photo-mode no-photo"
 
 ##@ Build
 
@@ -46,30 +46,24 @@ catalan: ## Build standard photo Catalan CV -> dist/
 ##@ Variants & Presets
 
 curated: ## Build all public variants in one container -> dist/
-	$(SCRIPT) -AllCurated -Parallelism $(CURATED_JOBS)
+	$(SCRIPT) --all-curated --parallelism $(CURATED_JOBS)
 
 curated-language: ## Build one language's public variants (use LANGUAGE=spanish)
-	$(SCRIPT) $(LANGUAGE) -AllCurated -Parallelism $(CURATED_JOBS)
+	$(SCRIPT) $(LANGUAGE) --all-curated --parallelism $(CURATED_JOBS)
 
 curated-preset: ## Build one preset in all languages (use PRESET=complete)
-	$(SCRIPT) -AllCurated -OnlyPreset $(PRESET) -Parallelism $(CURATED_JOBS)
+	$(SCRIPT) --all-curated --only-preset $(PRESET) --parallelism $(CURATED_JOBS)
 
 ats: ## Build the three local-only ATS CVs -> dist/
-	$(SCRIPT) -Style ats -PhotoMode no-photo
+	$(SCRIPT) --style ats --photo-mode no-photo
 
 ##@ Verification & Quality
-
-check: ## Compile the standard photo CVs in all languages
-	$(SCRIPT) -Check
 
 validate-career: ## Validate the AI tailoring career inventory (YAML schema)
 	$(PYTHON) scripts/validate-career.py
 
 test: ## Run unit tests (career inventory validation suite)
 	$(PYTHON) -m unittest discover -s tests
-
-lint: ## Run chktex on the three .tex sources (requires TeX Live)
-	chktex cv_english.tex cv_spanish.tex cv_catalan.tex
 
 ##@ Setup & Tooling
 
@@ -80,15 +74,7 @@ hooks: ## Enable tracked git hooks (.githooks/ pre-commit guard)
 ##@ Cleanup
 
 clean: ## Remove build/ (auxiliary files, logs, .xdv)
-ifeq ($(OS),Windows_NT)
-	pwsh -NoProfile -Command "Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue"
-else
 	rm -rf build
-endif
 
 distclean: clean ## Remove build/ and dist/ (also final PDFs)
-ifeq ($(OS),Windows_NT)
-	pwsh -NoProfile -Command "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue"
-else
 	rm -rf dist
-endif
