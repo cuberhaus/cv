@@ -128,16 +128,19 @@ projects:
 skills:
   - id: ai-ml
     category: AI & ML
-    items: [Machine Learning, PyTorch, scikit-learn, MLOps, Statistics]
+    items: [Machine Learning, PyTorch, scikit-learn, MLOps, MLflow, Statistics]
   - id: computer-vision-genai
     category: Computer Vision & GenAI
-    items: [Computer Vision, OpenCV, Object Detection, LLMs, RAG, Vector Search, LangChain]
+    items: [Computer Vision, OpenCV, Object Detection, Anomalib (PaDiM, PatchCore, FastFlow), YOLO, LLMs, RAG, Vector Search, LangChain, LangGraph, MCP, VLMs (Qwen-VL)]
   - id: physical-ai-nvidia
     category: Physical AI & NVIDIA Stack
-    items: [NVIDIA Omniverse, Isaac Sim, DeepStream, TAO Toolkit, Triton Inference Server]
+    items: [NVIDIA Omniverse, Isaac Sim, DeepStream, TAO Toolkit, Triton Inference Server, NVIDIA NIM, NVIDIA DALI, OpenUSD]
+  - id: model-serving-mlops
+    category: Model Serving & MLOps
+    items: [ONNX, ONNX Runtime, OpenVINO, Triton inference proxies]
   - id: cloud-data
     category: Cloud & Data Platforms
-    items: [AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions, PostgreSQL, FastAPI, Informatica]
+    items: [AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions, PostgreSQL, FastAPI, MinIO, MongoDB, Informatica, Ansible]
   - id: programming-languages
     category: Programming Languages
     items: [Python, TypeScript, JavaScript, C, C++, Java, SQL]
