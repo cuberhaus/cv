@@ -37,6 +37,12 @@ experience:
       - id: cloud-ai-infrastructure
         text: Designed and deployed edge inference, streaming pipelines, cloud-hosted training, and model serving across AWS, Azure, and GCP.
         metrics: {}
+      - id: vss-blueprint-deployment
+        text: Deployed and customised NVIDIA's Video Search and Summarization (VSS) blueprint for the warehouse use case, in which an agent reviews video, with NIM microservices and context-aware RAG (vector and graph). Upstream NVIDIA blueprint, deployed and customised rather than built from scratch.
+        metrics: {}
+      - id: fastapi-observability
+        text: Built asynchronous FastAPI backends with centralised logging and correlation IDs (Grafana, Loki, structlog) for the HORSE Powertrain work.
+        metrics: {}
       - id: generalitat-data-governance
         text: Contributed to a Generalitat de Catalunya data-governance initiative covering Informatica cataloguing, data lineage, and client-facing consulting.
         metrics: {}
@@ -63,12 +69,16 @@ experience:
       - id: insurance-data-analysis
         text: Collected, cleaned, and analyzed data from diverse sources in collaboration with business teams.
         metrics: {}
+      - id: report-accuracy-kpi-dashboards
+        text: Drove a 20% increase in report accuracy through predictive analytics, data governance, and optimised ETL processes, and delivered real-time KPI dashboards with Python, R, SQL Server, and PowerBI.
+        metrics:
+          report_accuracy_increase_percent: 20
   - id: superprof-private-tutor
-    organization: Superprof
-    role: Private Tutor (Freelance)
+    organization: Tusclasesparticulares (including Superprof)
+    role: Freelance Teacher
     location: Barcelona, Catalonia, Spain
-    start_date: 2023-03
-    end_date: present
+    start_date: 2017-05
+    end_date: 2024-02
     tags: [teaching, mentoring, programming, mathematics, physics]
     publishable: true
     evidence: []
@@ -77,7 +87,7 @@ experience:
         text: Held the "Super Professor" distinction on Superprof, mentoring engineers, business professionals, and programming beginners on technical problem-solving.
         metrics: {}
       - id: superprof-stem-tutoring
-        text: Delivered personalized instruction in mathematics, physics, and computer programming to middle and high school students.
+        text: Delivered personalized instruction in mathematics, physics, and computer programming to school and university students.
         metrics: {}
 education:
   - id: fib-computer-science-engineering
@@ -99,48 +109,78 @@ projects:
     summary: Faster R-CNN, RetinaNet, and SSD detectors on colonoscopy images, augmented with synthetic data and tuned with Optuna and Ray Tune.
   - id: personal-portfolio
     name: polcasacubertagil.com
-    tags: [astro, typescript, i18n, machine-learning, github-actions, latex]
+    tags: [astro, react, typescript, i18n, sentry, vitest, playwright, github-actions, latex]
     publishable: true
     evidence:
       - https://polcasacubertagil.com
-    summary: Multilingual Astro portfolio with interactive in-browser ML demos and a CI-driven LaTeX CV pipeline.
+      - https://github.com/cuberhaus/PersonalPortfolio
+    summary: Multilingual (EN / ES / CA) Astro and React portfolio in TypeScript with 20 interactive demos, Sentry observability, Vitest and Playwright test suites with sharded accessibility CI and CodeQL, and a CI-driven LaTeX CV pipeline.
   - id: draculin
     name: Draculin
     context: bitsxlaMarató 2023 finalist
     tags: [flutter, django, llm, computer-vision, health]
     publishable: true
-    evidence: []
+    evidence:
+      - https://github.com/cuberhaus/Draculin-Backend
+      - https://github.com/cuberhaus/Draculin-Front
     summary: Health-tracking application with an LLM chatbot and computer-vision image analysis.
   - id: bitsxlamarato-2022-aneurysm-detector
     name: Abdominal Aortic Aneurysm Detector
     context: "#bitsxlaMarató TV3 Hackathon 2022 winner"
     tags: [computer-vision, mask-rcnn, medical-imaging, 3d-visualization, hackathon]
     publishable: true
-    evidence: []
+    evidence:
+      - https://github.com/cuberhaus/bitsXlaMarato
     summary: Mask R-CNN detector that identifies abdominal aortic aneurysms from ultrasound video, reconstructs a 3D aorta model to measure the widest cross-section, and provides an interactive GUI; won the cardiovascular health challenge.
   - id: linux-config-automation
-    name: Linux Configuration Automation and Documentation
-    context: Open-source contributor
-    tags: [linux, shell-scripting, automation, stow, rclone, git, markdown, latex]
+    name: dotfiles
+    context: Own public open-source repository
+    tags: [linux, macos, shell-scripting, automation, stow, git, github-actions, testing, gitleaks, markdown]
     publishable: true
-    evidence: []
-    summary: Shell scripting and task automation across Linux environments using GNU Stow, Rclone, and Git, paired with Markdown and LaTeX technical documentation.
+    evidence:
+      - https://github.com/cuberhaus/dotfiles
+    summary: GNU Stow-managed configuration for Arch, Manjaro, Ubuntu, and macOS, with a Makefile, OS-specific bootstrap scripts, shell and Python tests, GitHub Actions CI including linting and Gitleaks secret scanning, and a Markdown README with docs.
+  - id: vercel-skills-prs
+    name: Open pull requests to vercel-labs/skills
+    context: Open source contribution (pull requests open, not yet merged as of 2026-11-03)
+    tags: [open-source, typescript, agent-skills, cli, testing]
+    publishable: true
+    evidence:
+      - https://github.com/vercel-labs/skills/pull/2496
+      - https://github.com/vercel-labs/skills/pull/2498
+    summary: Two open pull requests to the agent skills CLI (about 37.8k GitHub stars) adding a disable-model-invocation frontmatter field and a skills add flag with lockfile persistence, with unit and CLI tests.
+  - id: agentic-era-hackathon
+    name: AgenticEraHackathon
+    context: Google + Deloitte Agentic Era hackathon
+    tags: [langchain, vertex-ai, gemini, agents, hackathon]
+    publishable: true
+    evidence:
+      - https://github.com/cuberhaus/AgenticEraHackathon
+    summary: LangChain agent on Vertex AI Gemini 2.5 Flash that extracts structured data from Spanish public-administration documents.
+  - id: nvidia-emea-physical-ai-hackathon
+    name: NVIDIA EMEA Physical AI Hackathon
+    context: Team winner, 1st place across EMEA, Jul 2026
+    tags: [physical-ai, nvidia, isaac-sim, cuopt, optimization, hackathon]
+    publishable: true
+    evidence:
+      - https://github.com/Wess2s/team_D_pai
+    summary: AI-driven warehouse orchestration proof of concept combining NVIDIA NIM, cuOpt, Isaac Sim, and conflict-based search, turning operator intent into optimised robot routes and conflict-free coordination validated in simulation before execution. A team result; his commits cover the cuOpt server deployment, Isaac Sim scene integration, and conflict-based-search routing.
 skills:
   - id: ai-ml
     category: AI & ML
     items: [Machine Learning, PyTorch, scikit-learn, MLOps, MLflow, Statistics]
   - id: computer-vision-genai
     category: Computer Vision & GenAI
-    items: [Computer Vision, OpenCV, Object Detection, Anomalib (PaDiM, PatchCore, FastFlow), YOLO, LLMs, RAG, Vector Search, LangChain, LangGraph, MCP, VLMs (Qwen-VL)]
+    items: [Computer Vision, OpenCV, Object Detection, Anomalib (PaDiM, PatchCore, FastFlow), YOLO, LLMs, RAG, Vector Search, LangChain, LangGraph, MCP, LangSmith, LlamaIndex, Pydantic AI, VLMs (Qwen-VL)]
   - id: physical-ai-nvidia
     category: Physical AI & NVIDIA Stack
     items: [NVIDIA Omniverse, Isaac Sim, DeepStream, TAO Toolkit, Triton Inference Server, NVIDIA NIM, NVIDIA DALI, OpenUSD]
   - id: model-serving-mlops
     category: Model Serving & MLOps
-    items: [ONNX, ONNX Runtime, OpenVINO, Triton inference proxies]
+    items: [ONNX, ONNX Runtime, OpenVINO, Triton inference proxies, Ollama, vLLM]
   - id: cloud-data
     category: Cloud & Data Platforms
-    items: [AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions, PostgreSQL, FastAPI, MinIO, MongoDB, Informatica, Ansible]
+    items: [AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions, PostgreSQL, FastAPI, MinIO, MongoDB, Informatica, Ansible, Grafana, Loki]
   - id: programming-languages
     category: Programming Languages
     items: [Python, TypeScript, JavaScript, C, C++, Java, SQL]
